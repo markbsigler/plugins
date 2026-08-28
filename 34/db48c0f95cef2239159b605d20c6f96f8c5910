@@ -1,0 +1,60 @@
+tests/test_skills.py
+  s_af928bbf9c4a42::t_f52abe5e005e2d 19-20,27
+  s_af928bbf9c4a42::t_e67f78e2688f8f 122-144,146-151,156-166,168-169,182-196
+  s_af928bbf9c4a42::t_820b5fa91357bb 28,197-198
+tests/test_portability.py
+  s_af928bbf9c4a42::t_b140455acbb9b4 13
+  s_af928bbf9c4a42::t_9412ff06f46337 1-12,14-118
+scripts/run_server.py
+  s_af928bbf9c4a42::t_30e464fe15ccc8 1-58
+example-plugin/skills/table-stats/SKILL.md
+  s_af928bbf9c4a42::t_cced3b6db027e5 29-33
+example-plugin/skills/example-skill/SKILL.md
+  s_af928bbf9c4a42::t_46c3c7c3d942a7 25-28
+.gitattributes
+  s_af928bbf9c4a42::t_e779aaf717b799 1-42
+scripts/security_scan.py
+  s_af928bbf9c4a42::t_454d0480308dff 1-40
+scripts/update_schemas.py
+  s_af928bbf9c4a42::t_aa4ead6b986cf4 1-52
+README.md
+  s_af928bbf9c4a42::t_f9ea79e7926eb0 152,155-157
+  s_af928bbf9c4a42::t_44b89072910ecc 299-313
+  s_af928bbf9c4a42::t_57c01d4495678a 42-54,57-59,62-66,68-78,80-94
+  s_af928bbf9c4a42::t_10154811038d4c 171-177
+  s_af928bbf9c4a42::t_4bd10cb535edd6 158
+AGENTS.md
+  s_af928bbf9c4a42::t_afe28c771b87b6 62-64,66-74,77-111
+  s_af928bbf9c4a42::t_2f90ae6bffe1c1 39-45
+scripts/toolchain.py
+  s_af928bbf9c4a42::t_43170eb87bc670 1-68,70-293
+  s_af928bbf9c4a42::t_1b2743b03ad16b 69
+justfile
+  s_af928bbf9c4a42::t_6fa60515267eae 1-2,4-11,13-14,27-31,33,85,87,113-116,119,122,125,127,133-135
+scripts/image_smoke.py
+  s_af928bbf9c4a42::t_64e59731c7346a 1-24,45,52-53,61-66,69-94,96-127,129-136,140-142,144,146-153,155-161
+  s_af928bbf9c4a42::t_ff462b63ab405b 25-44
+  s_af928bbf9c4a42::t_fa934ae254f0f7 128
+  s_af928bbf9c4a42::t_aa81a9fcfa790d 67-68
+  s_af928bbf9c4a42::t_d3d472bbde523a 137,139,143,145
+  s_af928bbf9c4a42::t_b3c8601653000f 46-51,54-60
+  s_af928bbf9c4a42::t_fe6e3a734f6181 95
+  s_af928bbf9c4a42::t_84bedd5531fa28 138
+  s_af928bbf9c4a42::t_f93deda2fb6b29 154
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "34db48c0f95cef2239159b605d20c6f96f8c5910",
+  "prompts": {},
+  "sessions": {
+    "s_af928bbf9c4a42": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "79a46663-a888-4923-afa7-f567ede38d98",
+        "model": "unknown"
+      },
+      "human_author": "Mark B. Sigler <markbsigler@gmail.com>"
+    }
+  }
+}
