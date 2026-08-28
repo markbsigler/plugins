@@ -35,6 +35,7 @@ def read_input(path: str | None) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Parse arguments, count the input text, and print the result as JSON."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "path",

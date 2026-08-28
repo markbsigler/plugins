@@ -1,15 +1,14 @@
 # Pre-commit hooks for this repo. Install/run via `uv`'s ad hoc tool runner
 # (not pip):
 #
-#   uvx pre-commit install          # install the git hook once
-#   uvx pre-commit run --all-files  # run every hook against the whole repo
+#   just install-hooks        # or: uvx pre-commit install
+#   just pre-commit-all       # or: uvx pre-commit run --all-files
 #
-# `pre-commit` manages the small file-hygiene hooks below in its own
-# isolated environments (how the pre-commit framework always works). The
-# `ruff`/`ty`/`pytest`/`trivy` hooks instead call straight through to this
-# repo's own `uv`- and `trivy`-managed tooling (`language: system`), so they
-# stay in lockstep with `justfile` and AGENTS.md rather than a second,
-# separately pinned copy of the same tools.
+# The file-hygiene hooks below run in pre-commit's own isolated environments
+# (how the framework always manages third-party hooks). The ruff/ty/typos/
+# taplo/pytest/trivy hooks are `language: system` and call straight through to
+# this repo's own uv- and trivy-managed tooling, so they stay in lockstep with
+# the justfile instead of pinning a second copy of the same tools.
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -20,7 +19,10 @@ repos:
       - id: check-merge-conflict
       - id: check-added-large-files
       - id: check-json
-        exclude: ^\.vscode/
+      - id: check-yaml
+      - id: check-toml
+      - id: check-executables-have-shebangs
+      - id: detect-private-key
 
   - repo: local
     hooks:
@@ -35,6 +37,18 @@ repos:
         entry: uv run ruff format
         language: system
         types: [python]
+
+      - id: taplo
+        name: taplo fmt (TOML)
+        entry: uv run taplo fmt
+        language: system
+        types: [toml]
+
+      - id: typos
+        name: typos (spell check)
+        entry: uv run typos
+        language: system
+        pass_filenames: false
 
       - id: ty
         name: ty check

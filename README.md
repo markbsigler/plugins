@@ -1,98 +1,259 @@
 # plugins
 
-A collection of [Agent Plugins](https://agent-plugins.org/) — portable
-packages of Agent Skills and MCP servers built to the
+A collection of [Agent Plugins](https://agent-plugins.org/) — portable packages
+of [Agent Skills](https://agentskills.io/specification) and
+[MCP](https://modelcontextprotocol.io/) servers built to the
 [Agent Plugins Specification v1.0.0](https://agent-plugins.org/specification).
-Components in this repository are implemented in Python.
 
-Each top-level plugin directory is a self-contained package: a client should
-be able to copy that one directory out of this repository and load it on its
-own. Repository-wide files (this `README.md`, [`AGENTS.md`](./AGENTS.md),
-`pyproject.toml`, `justfile`, `.pre-commit-config.yaml`, `schemas/`,
-`tests/`) exist for development convenience and are not part of any plugin
-package.
+Every plugin lives in its own top-level directory. MCP servers are built with
+[FastMCP](https://gofastmcp.com/) and deployed as containers serving Streamable
+HTTP. **[`my-plugin/`](./my-plugin) is the reference example** — copy it to
+start anything new.
 
 ## Layout
 
 ```text
 plugins/
-├── AGENTS.md                # Conventions for humans and coding agents working in this repo
-├── README.md                 # This file
-├── pyproject.toml            # Dev tooling config (ruff, ty, pytest, inline-snapshot, jsonschema)
-├── justfile                  # `just <recipe>` shortcuts for the commands below
-├── .pre-commit-config.yaml   # Same checks, wired into `git commit`
-├── trivy.yaml                # Security scan config (vuln, secret, misconfig)
-├── .trivyignore               # Reviewed/accepted trivy findings, if any
-├── schemas/1.0.0/             # Vendored canonical Agent Plugins JSON Schemas
-├── tests/                     # Repo-level tests (manifest/schema checks, snapshot tests, server integration tests)
-└── my-plugin/                 # An example plugin — copy this to start a new one
-    ├── plugin.json
-    ├── mcp.json
-    ├── skills/
-    │   ├── example-skill/    # stdlib-only script
-    │   └── table-stats/      # polars + pydantic v2 script
-    └── servers/               # A stdio server and a FastAPI + pydantic v2 streamable-http server
+├── my-plugin/                  # ← the example and pattern for new plugins
+│   ├── plugin.json             #   required portable manifest
+│   ├── mcp.json                #   streamable-http server URLs
+│   ├── skills/                 #   Agent Skills (PEP 723 scripts)
+│   │   ├── example-skill/
+│   │   └── table-stats/
+│   └── servers/
+│       └── example-server/     #   FastMCP server (containerized)
+│           ├── fastmcp.json
+│           ├── pyproject.toml
+│           ├── Dockerfile
+│           ├── src/example_server/
+│           └── tests/
+│
+├── schemas/1.0.0/              # vendored canonical Agent Plugins JSON Schemas
+├── scripts/                    # new_plugin.py / new_server.py scaffolding
+├── tests/                      # repo-level validation (auto-discovers plugins)
+├── justfile                    # task runner — start here
+├── pyproject.toml              # uv workspace root + dev tooling config
+└── uv.lock                     # one lockfile for every server
 ```
 
-See [`my-plugin/README.md`](./my-plugin/README.md) for a walkthrough of that
-example.
-
-## Adding a new plugin
-
-1. Copy [`my-plugin/`](./my-plugin) to a new top-level directory named after
-   your plugin (see the naming rules in [`AGENTS.md`](./AGENTS.md)).
-2. Update `plugin.json` and delete whichever example components you don't
-   need (`skills/`, `mcp.json` + `servers/`).
-3. Build out your skill(s) and/or MCP server(s), following the Python
-   practices in [`AGENTS.md`](./AGENTS.md).
-4. Add or update tests under [`tests/`](./tests) — including a
-   schema-validation test against `schemas/1.0.0/` — and run the checks
-   below.
-
-## Development checks
-
-This repo uses [`uv`](https://docs.astral.sh/uv/) exclusively for Python
-tooling — no `venv`, `pip`, `pyenv`, or `poetry` —
-[`ruff`](https://docs.astral.sh/ruff/) for linting/formatting,
-[`ty`](https://docs.astral.sh/ty/) for type checking,
-[`pytest`](https://docs.pytest.org/) with
-[`inline-snapshot`](https://15r10nk.github.io/inline-snapshot/) for tests,
-[`jsonschema`](https://python-jsonschema.readthedocs.io/) to validate
-manifests against the canonical schemas, and [`trivy`](https://trivy.dev/)
-for security scanning. Plugin components use
-[Pydantic v2](https://docs.pydantic.dev/latest/) for data validation,
-[polars](https://pola.rs/) for dataframe work, and
-[FastAPI](https://fastapi.tiangolo.com/) for HTTP-based components (e.g.
-remote MCP servers). [`just`](https://just.systems/) wraps all of the below
-into short recipes, and the same checks also run as
-[pre-commit](https://pre-commit.com/) hooks:
+## Quick start
 
 ```bash
-uv sync                            # install dev tooling into .venv
-uv run ruff check .                # lint
-uv run ruff format .               # format
-uv run ty check .                  # type-check (repo-level code only; see AGENTS.md)
-uv run pytest                      # run tests
-trivy fs --config trivy.yaml .     # vulnerability / secret / misconfig scan
-
-just check                         # ...or just run all of the above at once
-uvx pre-commit install             # ...or install them as a pre-commit hook
+brew install just uv trivy      # or your preferred installer
+just sync                       # create the workspace venv
+just install-hooks              # optional: pre-commit git hook
+just check                      # lint + format + types + spelling + tests + security
 ```
+
+---
+
+# Contributing a new plugin
+
+## 1. Scaffold from the example
+
+```bash
+just new-plugin acme-tools
+```
+
+This copies `my-plugin/`, renames the bundled server package and Python module,
+and rewrites every identifier. You get a complete, working plugin: manifest,
+two example skills, and a containerized FastMCP server with tests.
+
+Prefer a different server name:
+
+```bash
+just new-plugin acme-tools --server-name acme-api
+```
+
+## 2. Fill in the TODOs
+
+The scaffold deliberately leaves markers that the test suite **fails on** until
+you replace them — that is the guardrail, not a bug:
+
+| File | What to change |
+| --- | --- |
+| `acme-tools/plugin.json` | `description`, `author`, `keywords`, `license` |
+| `acme-tools/mcp.json` | `url` → your deployed server (the template `example.com` URL is rejected) |
+| `acme-tools/skills/` | Replace/rename the example skills, or delete them |
+| `acme-tools/servers/*/src/*/server.py` | Implement your tools |
+| `acme-tools/README.md` | Describe your plugin |
+
+Then install the new server into the workspace:
+
+```bash
+just sync
+```
+
+## 3. Write skills
+
+A skill is a directory under `skills/` containing `SKILL.md` with YAML
+frontmatter. `name` must match the directory name; `description` should say
+both *what* it does and *when* to use it, since that is what an agent matches
+against.
+
+```markdown
+---
+name: acme-lookup
+description: Looks up an Acme part number and returns its specifications. Use when the user mentions an Acme part, SKU, or catalog number.
+---
+
+# Acme lookup
+
+Run the bundled script and summarize the result:
+
+    ./scripts/lookup.py <part-number>
+```
+
+Bundled scripts are self-contained [PEP 723](https://peps.python.org/pep-0723/)
+files — dependencies are declared inline and resolved by `uv`, so no install
+step is needed and the skill directory stays copyable:
+
+```python
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["httpx>=0.27"]
+# ///
+```
+
+Make them executable (`chmod +x`) — the test suite enforces this.
+
+## 4. Write MCP servers
+
+Servers use [FastMCP](https://gofastmcp.com/). Define tools in `server.py` and
+keep transport concerns in `__main__.py`, so the `mcp` object stays importable
+for fast in-memory tests:
+
+```python
+from fastmcp import FastMCP
+
+mcp = FastMCP(name="acme-server")
+
+
+@mcp.tool
+def lookup(part_number: str) -> dict[str, str]:
+    """Look up an Acme part. The docstring becomes the tool description."""
+    ...
+```
+
+Add another server to an existing plugin:
+
+```bash
+just new-server acme-tools acme-api
+```
+
+Useful during development:
+
+```bash
+just inspect-server acme-tools acme-api    # dump the tool/resource surface
+just docker-build acme-tools acme-api      # build the container image
+just docker-run acme-api                   # run it locally
+```
+
+### How servers and `mcp.json` relate
+
+The server *source* lives in the plugin; the *running service* does not. A
+client never launches these servers — it only reads the `url` from `mcp.json`
+and connects. Deploy the container yourself, then point `mcp.json` at it:
+
+```json
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "acme-api": {
+      "type": "streamable-http",
+      "url": "https://mcp.acme.example/acme-tools/mcp"
+    }
+  }
+}
+```
+
+Three constraints worth knowing up front:
+
+- **No placeholder expansion in `url`.** The spec does not expand `${VAR}` in
+  URLs, so one manifest cannot cover dev/staging/prod.
+- **No portable auth.** Agent Plugins v1 defines no OAuth or credential field;
+  authentication is client-managed.
+- **`headers` are visible package data.** Never put tokens there — the test
+  suite rejects credential-looking header names.
+
+## 5. Test
+
+```bash
+just test          # everything
+just test-fast     # skip subprocess/network round trips
+```
+
+Server tests use FastMCP's in-memory transport — full protocol, no network, no
+ports:
+
+```python
+from fastmcp import Client
+from acme_server import mcp
+
+
+async def test_lookup():
+    async with Client(mcp) as client:
+        result = await client.call_tool("lookup", {"part_number": "A-1"})
+    assert result.data == {...}
+```
+
+Repo-level tests **auto-discover** every `*/plugin.json`, so your plugin is
+validated against the canonical JSON Schemas, the Agent Skills spec, and this
+repo's conventions with **no test edits required**.
+
+For verbose expected values, use
+[`inline-snapshot`](https://15r10nk.github.io/inline-snapshot/):
+write `snapshot()`, run `just snapshot-fix`, then **review the diff** — a
+passing fix means code and test agree, not that the value is correct.
+
+## 6. Submit
+
+```bash
+just check    # must pass
+```
+
+**PR checklist**
+
+- [ ] `just check` passes
+- [ ] `plugin.json` name matches the directory name
+- [ ] No TODO/template placeholders left in manifests
+- [ ] `mcp.json` points at a real deployed URL (HTTPS, no credentials in headers)
+- [ ] Skills have accurate `description` fields explaining *when* to use them
+- [ ] Server tools have docstrings (they become tool descriptions)
+- [ ] New servers have tests and a `Dockerfile`
+- [ ] `uv.lock` committed if dependencies changed
+
+---
+
+## Toolchain
+
+All Python tooling runs through [`uv`](https://docs.astral.sh/uv/) — no `venv`,
+`pip`, `pyenv`, or `poetry`. The repo is a **uv workspace**: each server is its
+own package, resolved into one root `uv.lock` so container builds are
+reproducible.
+
+| Tool | Purpose | Recipe |
+| --- | --- | --- |
+| [`ruff`](https://docs.astral.sh/ruff/) | Lint + format (Rust) | `just lint` / `just fmt` |
+| [`ty`](https://docs.astral.sh/ty/) | Type check (Rust) | `just typecheck` |
+| [`taplo`](https://taplo.tamasfe.dev/) | TOML format (Rust) | `just fmt` |
+| [`typos`](https://github.com/crate-ci/typos) | Spell check (Rust) | `just spell` |
+| [`pytest`](https://docs.pytest.org/) | Tests | `just test` |
+| [`trivy`](https://trivy.dev/) | Vulns, secrets, misconfig (Go) | `just security` |
+| [`pre-commit`](https://pre-commit.com/) | Git hooks | `just install-hooks` |
+
+Run `just` to list every recipe. Conventions and rationale live in
+[`AGENTS.md`](./AGENTS.md).
 
 ## Reference
 
 - [Agent Plugins specification](https://agent-plugins.org/specification)
-- [Agent Plugins: build a plugin](https://agent-plugins.org/plugin-authors/build-an-agent-plugin)
 - [Agent Skills specification](https://agentskills.io/specification)
-- [Model Context Protocol specification](https://modelcontextprotocol.io/specification)
-- [Reference example plugin](https://github.com/agentplugins/agent-plugins-example)
-- [uv documentation](https://docs.astral.sh/uv/)
-- [ty documentation](https://docs.astral.sh/ty/)
-- [FastAPI documentation](https://fastapi.tiangolo.com/)
-- [Pydantic documentation](https://docs.pydantic.dev/latest/)
-- [polars documentation](https://docs.pola.rs/)
-- [inline-snapshot documentation](https://15r10nk.github.io/inline-snapshot/)
-- [jsonschema documentation](https://python-jsonschema.readthedocs.io/)
-- [trivy documentation](https://trivy.dev/)
-- [just documentation](https://just.systems/)
-- [pre-commit documentation](https://pre-commit.com/)
+- [Model Context Protocol](https://modelcontextprotocol.io/specification)
+- [FastMCP](https://gofastmcp.com/)
+- [uv workspaces](https://docs.astral.sh/uv/concepts/projects/workspaces/)
+
+## License
+
+[MIT](./LICENSE)

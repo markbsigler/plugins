@@ -1,0 +1,13 @@
+# Taplo (Rust TOML toolkit) configuration.
+# Run: `uv run taplo fmt` / `uv run taplo fmt --check`
+
+include = ["**/*.toml"]
+exclude = [".venv/**", "**/.venv/**"]
+
+[formatting]
+# Keep intentionally multi-line arrays (ruff rule lists, pytest addopts,
+# dependency groups) expanded rather than collapsing them onto one line.
+array_auto_collapse = false
+array_auto_expand = false
+indent_string = "  "
+reorder_keys = false

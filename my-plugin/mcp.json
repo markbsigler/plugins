@@ -1,16 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
   "mcpServers": {
-    "example-echo": {
-      "type": "stdio",
-      "command": "./servers/echo_server.py",
-      "args": [],
-      "env": {
-        "EXAMPLE_PLUGIN_DATA_DIR": "${PLUGIN_DATA}"
-      },
-      "cwd": "${PLUGIN_ROOT}"
-    },
-    "example-remote": {
+    "example-server": {
       "type": "streamable-http",
       "url": "https://mcp.example.com/my-plugin/mcp"
     }

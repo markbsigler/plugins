@@ -6,7 +6,7 @@
 #     "pydantic>=2.9",
 # ]
 # ///
-"""Summarize a delimited table (CSV/TSV/...) with polars.
+r"""Summarize a delimited table (CSV/TSV/...) with polars.
 
 Example:
     ./table_stats.py data.csv
@@ -53,6 +53,7 @@ def summarize(path: Path, separator: str) -> TableSummary:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Parse arguments, summarize the table, and print the result as JSON."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("path", type=Path, help="Path to a delimited text file.")
     parser.add_argument("--separator", default=",", help="Field separator (default: ',').")
