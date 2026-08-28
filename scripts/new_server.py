@@ -2,8 +2,8 @@
 """Scaffold a new FastMCP server inside an existing plugin.
 
 Usage:
-    just new-server my-plugin extra-server
-    uv run python scripts/new_server.py my-plugin extra-server
+    just new-server example-plugin extra-server
+    uv run python scripts/new_server.py example-plugin extra-server
 
 Copies the example server package, renames the Python module, and rewrites
 identifiers so ``uv sync`` picks it up as a workspace member immediately.
@@ -17,7 +17,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-TEMPLATE_SERVER = REPO_ROOT / "my-plugin" / "servers" / "example-server"
+TEMPLATE_SERVER = REPO_ROOT / "example-plugin" / "servers" / "example-server"
 
 
 def rewrite(path: Path, replacements: dict[str, str]) -> None:
@@ -59,7 +59,7 @@ def main(argv: list[str] | None = None) -> int:
     replacements = {
         "example-server": server_name,
         "example_server": module,
-        "my-plugin": args.plugin,
+        "example-plugin": args.plugin,
     }
     for path in destination.rglob("*"):
         if path.is_file():
@@ -74,7 +74,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  1. Implement tools in {destination.relative_to(REPO_ROOT)}/src/{module}/server.py")
     print(f"  2. Update tests in {destination.relative_to(REPO_ROOT)}/tests/")
     print(f"  3. Add an entry to {args.plugin}/mcp.json pointing at the deployed URL")
-    print("  4. uv sync && just check")
+    print("  4. just sync && just check")
     return 0
 
 

@@ -3,6 +3,10 @@
 Transport and hosting concerns live here rather than in ``server.py`` so the
 ``mcp`` object stays import-clean for in-memory tests.
 
+The server speaks MCP's Streamable HTTP transport; see
+https://modelcontextprotocol.io/specification/ for the protocol and
+https://gofastmcp.com/deployment/http for FastMCP's HTTP deployment guide.
+
 Configuration is read from the environment so the same image runs in every
 environment:
 

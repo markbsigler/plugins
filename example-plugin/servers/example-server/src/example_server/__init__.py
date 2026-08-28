@@ -1,4 +1,4 @@
-"""Example FastMCP server packaged inside the ``my-plugin`` Agent Plugin."""
+"""Example FastMCP server packaged inside the ``example-plugin`` Agent Plugin."""
 
 from __future__ import annotations
 

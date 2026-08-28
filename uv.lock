@@ -372,7 +372,7 @@ wheels = [
 [[package]]
 name = "example-server"
 version = "0.1.0"
-source = { editable = "my-plugin/servers/example-server" }
+source = { editable = "example-plugin/servers/example-server" }
 dependencies = [
     { name = "fastmcp" },
 ]

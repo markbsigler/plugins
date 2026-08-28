@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Scaffold a new plugin by copying the ``my-plugin`` example.
+"""Scaffold a new plugin by copying the ``example-plugin`` example.
 
 Usage:
     just new-plugin my-new-plugin
@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-TEMPLATE = REPO_ROOT / "my-plugin"
+TEMPLATE = REPO_ROOT / "example-plugin"
 
 # Agent Plugins v1.0.0 §5.5 name constraints.
 NAME_PATTERN = re.compile(r"^(?!.*(?:--|\.\.))[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$")
@@ -85,7 +85,7 @@ def main(argv: list[str] | None = None) -> int:
     replacements = {
         "example-server": server_name,
         "example_server": server_module,
-        "my-plugin": name,
+        "example-plugin": name,
     }
     for path in destination.rglob("*"):
         if path.is_file() and path.suffix in {".py", ".json", ".toml", ".md", ""}:
@@ -112,7 +112,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  2. Edit {name}/mcp.json         (deployed server URL, or delete if none)")
     print(f"  3. Rename/replace skills in {name}/skills/")
     print(f"  4. Implement tools in {name}/servers/{server_name}/src/{server_module}/server.py")
-    print("  5. uv sync && just check")
+    print("  5. just sync && just check")
     return 0
 
 

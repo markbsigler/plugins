@@ -3,7 +3,7 @@
   "mcpServers": {
     "example-server": {
       "type": "streamable-http",
-      "url": "https://mcp.example.com/my-plugin/mcp"
+      "url": "https://mcp.example.com/example-plugin/mcp"
     }
   }
 }

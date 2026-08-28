@@ -66,7 +66,7 @@ def test_every_skill_script_responds_to_help(script: Path) -> None:
 
 @pytest.mark.slow
 def test_word_count_script_reports_counts() -> None:
-    script = REPO_ROOT / "my-plugin/skills/example-skill/scripts/word_count.py"
+    script = REPO_ROOT / "example-plugin/skills/example-skill/scripts/word_count.py"
     result = _run_script(script, stdin="hello world\nsecond line\n")
     assert json.loads(result.stdout) == snapshot({"lines": 2, "words": 4, "chars": 24})
 
@@ -76,7 +76,7 @@ def test_table_stats_script_reports_summary(tmp_path: Path) -> None:
     csv_path = tmp_path / "sample.csv"
     csv_path.write_text("name,age,city\nalice,30,nyc\nbob,,sf\ncarol,25,\n", encoding="utf-8")
 
-    script = REPO_ROOT / "my-plugin/skills/table-stats/scripts/table_stats.py"
+    script = REPO_ROOT / "example-plugin/skills/table-stats/scripts/table_stats.py"
     result = _run_script(script, str(csv_path))
     assert json.loads(result.stdout) == snapshot(
         {

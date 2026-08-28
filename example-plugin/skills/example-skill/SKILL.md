@@ -8,7 +8,7 @@ metadata:
 
 # Example skill
 
-This is a template skill for the `my-plugin` scaffold. Copy this directory when
+This is a template skill for the `example-plugin` scaffold. Copy this directory when
 starting a new skill in this repository.
 
 ## When to use this skill

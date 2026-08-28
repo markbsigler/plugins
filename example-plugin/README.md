@@ -1,11 +1,11 @@
-# my-plugin
+# example-plugin
 
 The reference [Agent Plugin](https://agent-plugins.org/) for this repository —
 copy it with `just new-plugin <name>` to start anything new. Repo-wide
 conventions live in [`README.md`](../README.md) and [`AGENTS.md`](../AGENTS.md).
 
 ```text
-my-plugin/
+example-plugin/
 ├── plugin.json                       # required portable manifest
 ├── mcp.json                          # streamable-http URL of the deployed server
 ├── skills/
@@ -53,9 +53,10 @@ manifest at it.
 ./skills/table-stats/scripts/table_stats.py data.csv
 
 # Server, from the repo root
-just inspect-server my-plugin example-server        # dump the tool surface
-FASTMCP_PORT=8000 uv run python -m example_server   # serve on :8000/mcp
-just docker-build my-plugin example-server          # build the image
+just inspect-server example-plugin example-server        # dump the tool surface
+FASTMCP_PORT=8000 uv run python -m example_server        # serve on :8000/mcp
+just image-build example-plugin example-server           # build the image (podman)
+just image-smoke example-plugin example-server           # build, run, verify
 ```
 
 ## Server configuration
@@ -77,3 +78,10 @@ Set the allowlists to your public hostname when deploying behind a proxy.
 Prefer `just new-plugin <name>`, which does all the renaming for you. See the
 [contribution guide](../README.md#contributing-a-new-plugin) for the full
 walkthrough.
+
+## Canonical references
+
+- Plugin package format — https://agent-plugins.org/specification
+- Skill format — https://agentskills.io/specification
+- MCP protocol — https://modelcontextprotocol.io/specification/
+- FastMCP framework — https://gofastmcp.com/

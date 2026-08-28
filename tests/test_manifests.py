@@ -29,7 +29,7 @@ from discovery import (
     load_json,
 )
 
-# Placeholder values inherited from the my-plugin template. A real plugin must
+# Placeholder values inherited from the example-plugin template. A real plugin must
 # replace these, so we fail loudly rather than publishing "Your Name".
 TEMPLATE_PLACEHOLDERS = ("Your Name", "your-org", "example.com")
 
@@ -74,8 +74,8 @@ def test_plugin_name_matches_directory_name(plugin_dir: Path) -> None:
 
 def test_plugin_metadata_has_no_unedited_template_placeholders(plugin_dir: Path) -> None:
     manifest = load_json(plugin_dir / "plugin.json")
-    if manifest["name"] == "my-plugin":
-        pytest.skip("my-plugin is the template itself")
+    if manifest["name"] == "example-plugin":
+        pytest.skip("example-plugin is the template itself")
     found = [
         placeholder
         for placeholder in TEMPLATE_PLACEHOLDERS
@@ -86,8 +86,8 @@ def test_plugin_metadata_has_no_unedited_template_placeholders(plugin_dir: Path)
 
 def test_mcp_urls_are_not_template_placeholders(plugin_dir: Path) -> None:
     """A plugin must point at its own deployed server, not the example URL."""
-    if plugin_dir.name == "my-plugin":
-        pytest.skip("my-plugin is the template itself")
+    if plugin_dir.name == "example-plugin":
+        pytest.skip("example-plugin is the template itself")
     mcp_path = plugin_dir / "mcp.json"
     if not mcp_path.exists():
         pytest.skip("plugin declares no MCP servers")

@@ -2,48 +2,57 @@
 
 A collection of [Agent Plugins](https://agent-plugins.org/) — portable packages
 of [Agent Skills](https://agentskills.io/specification) and
-[MCP](https://modelcontextprotocol.io/) servers built to the
+[MCP](https://modelcontextprotocol.io/specification/) servers built to the
 [Agent Plugins Specification v1.0.0](https://agent-plugins.org/specification).
 
 Every plugin lives in its own top-level directory. MCP servers are built with
 [FastMCP](https://gofastmcp.com/) and deployed as containers serving Streamable
-HTTP. **[`my-plugin/`](./my-plugin) is the reference example** — copy it to
-start anything new.
+HTTP. **[`example-plugin/`](./example-plugin) is the reference example and the
+pattern for every new plugin** — never hand-build one, copy it with
+`just new-plugin`.
 
 ## Layout
 
 ```text
 plugins/
-├── my-plugin/                  # ← the example and pattern for new plugins
-│   ├── plugin.json             #   required portable manifest
-│   ├── mcp.json                #   streamable-http server URLs
-│   ├── skills/                 #   Agent Skills (PEP 723 scripts)
+├── example-plugin/              # ← the example and pattern for new plugins
+│   ├── plugin.json              #   required portable manifest
+│   ├── mcp.json                 #   streamable-http server URLs
+│   ├── skills/                  #   Agent Skills (PEP 723 scripts)
 │   │   ├── example-skill/
 │   │   └── table-stats/
 │   └── servers/
-│       └── example-server/     #   FastMCP server (containerized)
+│       └── example-server/      #   FastMCP server (containerized)
 │           ├── fastmcp.json
 │           ├── pyproject.toml
 │           ├── Dockerfile
 │           ├── src/example_server/
 │           └── tests/
 │
-├── schemas/1.0.0/              # vendored canonical Agent Plugins JSON Schemas
-├── scripts/                    # new_plugin.py / new_server.py scaffolding
-├── tests/                      # repo-level validation (auto-discovers plugins)
-├── justfile                    # task runner — start here
-├── pyproject.toml              # uv workspace root + dev tooling config
-└── uv.lock                     # one lockfile for every server
+├── schemas/1.0.0/               # vendored canonical Agent Plugins JSON Schemas
+├── scripts/                     # new_plugin.py / new_server.py scaffolding
+├── tests/                       # repo-level validation (auto-discovers plugins)
+├── justfile                     # task runner — start here
+├── pyproject.toml               # uv workspace root + dev tooling config
+└── uv.lock                      # one lockfile for every server
 ```
 
 ## Quick start
 
 ```bash
-brew install just uv trivy      # or your preferred installer
-just sync                       # create the workspace venv
+git clone <this-repo> && cd plugins
+just install                    # installs uv, just, podman, trivy + syncs the workspace
 just install-hooks              # optional: pre-commit git hook
 just check                      # lint + format + types + spelling + tests + security
 ```
+
+`just install` is idempotent — re-run it any time to verify your setup.
+`just doctor` reports the status of every required tool without changing
+anything.
+
+Container images are built and run with [Podman](https://podman.io/)
+(rootless, daemonless). The `Dockerfile` is OCI-standard, so Docker works too:
+pass `just container=docker <recipe>`.
 
 ---
 
@@ -55,7 +64,7 @@ just check                      # lint + format + types + spelling + tests + sec
 just new-plugin acme-tools
 ```
 
-This copies `my-plugin/`, renames the bundled server package and Python module,
+This copies `example-plugin/`, renames the bundled server package and Python module,
 and rewrites every identifier. You get a complete, working plugin: manifest,
 two example skills, and a containerized FastMCP server with tests.
 
@@ -120,9 +129,13 @@ Make them executable (`chmod +x`) — the test suite enforces this.
 
 ## 4. Write MCP servers
 
-Servers use [FastMCP](https://gofastmcp.com/). Define tools in `server.py` and
-keep transport concerns in `__main__.py`, so the `mcp` object stays importable
-for fast in-memory tests:
+Servers use [FastMCP](https://gofastmcp.com/) — the canonical reference for
+the framework — and implement the
+[Model Context Protocol](https://modelcontextprotocol.io/specification/),
+which is the canonical reference for the protocol itself.
+
+Define tools in `server.py` and keep transport concerns in `__main__.py`, so
+the `mcp` object stays importable for fast in-memory tests:
 
 ```python
 from fastmcp import FastMCP
@@ -145,9 +158,10 @@ just new-server acme-tools acme-api
 Useful during development:
 
 ```bash
-just inspect-server acme-tools acme-api    # dump the tool/resource surface
-just docker-build acme-tools acme-api      # build the container image
-just docker-run acme-api                   # run it locally
+just inspect-server acme-tools acme-api      # dump the tool/resource surface
+just image-build acme-tools acme-api         # build the container image (podman)
+just image-run acme-api                      # run it locally on :8000/mcp
+just image-smoke acme-tools acme-api         # build, run, and verify over HTTP
 ```
 
 ### How servers and `mcp.json` relate
@@ -235,24 +249,32 @@ reproducible.
 
 | Tool | Purpose | Recipe |
 | --- | --- | --- |
+| [`uv`](https://docs.astral.sh/uv/) | Packaging + workspace (Rust) | `just sync` |
 | [`ruff`](https://docs.astral.sh/ruff/) | Lint + format (Rust) | `just lint` / `just fmt` |
 | [`ty`](https://docs.astral.sh/ty/) | Type check (Rust) | `just typecheck` |
 | [`taplo`](https://taplo.tamasfe.dev/) | TOML format (Rust) | `just fmt` |
 | [`typos`](https://github.com/crate-ci/typos) | Spell check (Rust) | `just spell` |
 | [`pytest`](https://docs.pytest.org/) | Tests | `just test` |
 | [`trivy`](https://trivy.dev/) | Vulns, secrets, misconfig (Go) | `just security` |
+| [`podman`](https://podman.io/) | Container build + run (Go) | `just image-build` |
+| [`just`](https://just.systems/) | Task runner (Rust) | `just --list` |
 | [`pre-commit`](https://pre-commit.com/) | Git hooks | `just install-hooks` |
 
-Run `just` to list every recipe. Conventions and rationale live in
-[`AGENTS.md`](./AGENTS.md).
+Run `just` to list every recipe, or `just doctor` to check your setup.
+Conventions and rationale live in [`AGENTS.md`](./AGENTS.md).
 
 ## Reference
 
-- [Agent Plugins specification](https://agent-plugins.org/specification)
-- [Agent Skills specification](https://agentskills.io/specification)
-- [Model Context Protocol](https://modelcontextprotocol.io/specification)
-- [FastMCP](https://gofastmcp.com/)
-- [uv workspaces](https://docs.astral.sh/uv/concepts/projects/workspaces/)
+Canonical sources — prefer these over blog posts or secondary summaries:
+
+| Topic | Canonical source |
+| --- | --- |
+| Plugin package format | https://agent-plugins.org/specification |
+| Skill format | https://agentskills.io/specification |
+| **MCP protocol** | **https://modelcontextprotocol.io/specification/** |
+| **FastMCP framework** | **https://gofastmcp.com/** |
+| uv workspaces | https://docs.astral.sh/uv/concepts/projects/workspaces/ |
+| Podman | https://podman.io/docs |
 
 ## License
 

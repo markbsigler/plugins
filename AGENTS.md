@@ -11,16 +11,28 @@ containers over Streamable HTTP.
 Read this file before adding or modifying a plugin. For the contributor
 walkthrough, see [`README.md`](./README.md).
 
-The specification text at https://agent-plugins.org/specification is
-authoritative; this document summarizes it and adds repo conventions. If the
-two conflict, the spec wins.
+### Canonical sources
+
+Consult these directly rather than relying on memory, blog posts, or
+secondary summaries — all are current and authoritative:
+
+| Topic | Canonical source |
+| --- | --- |
+| Plugin package format | https://agent-plugins.org/specification |
+| Skill format | https://agentskills.io/specification |
+| **MCP protocol** | **https://modelcontextprotocol.io/specification/** |
+| **FastMCP framework** | **https://gofastmcp.com/** |
+
+Where the Agent Plugins specification and this document conflict, the
+specification wins. Where FastMCP usage is unclear, check
+https://gofastmcp.com/ — its API changed meaningfully in 3.x.
 
 ## 1. Repository layout
 
 - Any top-level directory containing `plugin.json` **is** a plugin. Discovery
   and validation are driven by that glob, so a new plugin directory is
   automatically covered by the test suite with no test edits.
-- [`my-plugin/`](./my-plugin) is the canonical example. **Never hand-build a
+- [`example-plugin/`](./example-plugin) is the canonical example. **Never hand-build a
   new plugin** — run `just new-plugin <name>`, which copies it and rewrites
   every identifier.
 - Repo-level tooling — `README.md`, `AGENTS.md`, `pyproject.toml`, `justfile`,
@@ -40,6 +52,19 @@ local development.
 Always sync with **`just sync`** (`uv sync --all-packages`), which installs
 every workspace member. A plain `uv sync` will not install newly added
 servers, and their tests will fail to import.
+
+### 1.2 Environment setup
+
+Run **`just install`** on a new machine: it installs `uv`, `just`, `podman`,
+and `trivy` (via Homebrew, with manual instructions as a fallback) and then
+syncs the workspace. It is idempotent, so re-run it any time.
+
+**`just doctor`** reports the status of every required tool and the container
+engine without changing anything — use it first when something behaves
+unexpectedly.
+
+Python tools (`ruff`, `ty`, `taplo`, `typos`, `pytest`) come from the uv
+workspace, not Homebrew. Never install them separately.
 
 ## 2. The Agent Plugins package format (summary)
 
@@ -61,7 +86,7 @@ servers, and their tests will fail to import.
 - `$schema` must be exactly
   `"https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"`.
 - `name`: 1–64 chars, lowercase ASCII letters/digits/`-`/`.`, must start and
-  end alphanumeric, no `--` or `..`. Valid: `my-plugin`, `acme.tools`.
+  end alphanumeric, no `--` or `..`. Valid: `example-plugin`, `acme.tools`.
   Invalid: `My-Plugin`, `-start`, `has--double`.
 - Keep the directory name identical to `name` (enforced by tests).
 
@@ -138,7 +163,11 @@ Never make one plugin import code from another.
 ### 3.3 FastMCP servers
 
 Use [FastMCP](https://gofastmcp.com/) — not the lower-level `mcp` SDK — for
-every MCP server.
+every MCP server. FastMCP's documentation at **https://gofastmcp.com/** is the
+canonical reference for the framework; the **MCP specification** at
+**https://modelcontextprotocol.io/specification/** is canonical for the
+protocol (transports, lifecycle, wire format). Check them rather than guessing:
+FastMCP's API changed meaningfully in 3.x.
 
 **Structure matters.** Keep `server.py` free of transport concerns:
 
@@ -159,7 +188,7 @@ def do_thing(arg: str) -> dict[str, str]:
 mcp.run(transport="http", host=..., port=...)
 ```
 
-That split is what makes in-memory testing (§3.5) possible. Also:
+That split is what makes in-memory testing (§3.6) possible. Also:
 
 - `@mcp.tool` takes no parentheses in FastMCP 3.x.
 - **Write real docstrings on every tool** — they become the model-facing
@@ -173,7 +202,31 @@ That split is what makes in-memory testing (§3.5) possible. Also:
   multi-stage, non-root `Dockerfile`. `just inspect-server` dumps the tool
   surface.
 
-### 3.4 Data validation and processing
+### 3.4 Containers: podman first
+
+**`podman` is this repo's container engine** (rootless and daemonless). Use the
+`just` recipes rather than invoking the engine directly:
+
+```bash
+just image-build example-plugin example-server   # build
+just image-run example-server                    # run on :8000/mcp
+just image-smoke example-plugin example-server   # build, run, verify over HTTP
+```
+
+The `Dockerfile` is OCI-standard, so Docker works identically — pass
+`just container=docker <recipe>` if you prefer it. Keep it that way: do not
+introduce podman-only or docker-only build syntax.
+
+Dockerfile requirements (enforced by `tests/test_servers.py`):
+
+- Multi-stage, so the runtime image excludes build tooling.
+- A `USER` instruction — never run as root.
+- Build from the **repo root** so the workspace `uv.lock` is in context.
+
+If a container command fails, run `just doctor` first: the engine is commonly
+installed but not started (`podman machine start`).
+
+### 3.5 Data validation and processing
 
 - **Pydantic v2** for structured input/output at boundaries — script stdout,
   tool returns, HTTP bodies. Use v2 APIs only (`model_dump()`,
@@ -184,7 +237,7 @@ That split is what makes in-memory testing (§3.5) possible. Also:
 - Declare these per component (PEP 723 block or the server's `pyproject.toml`),
   never in the repo root.
 
-### 3.5 Testing
+### 3.6 Testing
 
 ```bash
 just test          # everything
@@ -206,7 +259,7 @@ just test-fast     # skip subprocess/network round trips
   **read the diff**. A passing fix means code and test agree — not that the
   new value is correct.
 
-### 3.6 Code quality
+### 3.7 Code quality
 
 - Type hints on all signatures; avoid bare `Any` when a concrete type exists.
 - `pathlib.Path` over string path manipulation (enforced by ruff `PTH`).
@@ -217,19 +270,22 @@ just test-fast     # skip subprocess/network round trips
 - Suppress a lint only with a **targeted, explained** `# noqa: RULE`. `RUF100`
   fails the build on stale suppressions.
 
-### 3.7 Tooling
+### 3.8 Tooling
 
 Everything runs through `just` — prefer recipes over retyping commands, and
 update the `justfile` (not just this doc) when a command changes.
 
 | Tool | Purpose |
 | --- | --- |
+| `uv` | Packaging, workspace, script running |
+| `just` | Task runner (`just install`, `just doctor`, `just check`) |
 | `ruff` | Lint + format |
 | `ty` | Type check (**not** mypy/pyright) |
 | `taplo` | TOML formatting |
 | `typos` | Spell check |
 | `pytest` | Tests |
 | `trivy` | Vulnerabilities, secrets, misconfig |
+| `podman` | Container build + run (**not** docker by default) |
 
 `ty` skips PEP 723 scripts (`[tool.ty.src].exclude`) because their deps live in
 `uv`'s per-script cache. Type-check one with
@@ -243,7 +299,7 @@ Pre-commit (`just install-hooks`) runs the same tools as `language: system`
 hooks calling this repo's toolchain, so hooks and `justfile` can't drift. If
 you add a repo-level tool, add **both** a recipe and a hook.
 
-### 3.8 Before committing
+### 3.9 Before committing
 
 Run **`just check`** (lint, format, types, spelling, tests, security). Then:
 

@@ -1,8 +1,17 @@
 # Multi-stage build for the example FastMCP server.
 #
-# Build from the *repository root* so the uv workspace lockfile is available:
+# FastMCP reference: https://gofastmcp.com/
+# MCP specification:  https://modelcontextprotocol.io/specification/
 #
-#   docker build -f my-plugin/servers/example-server/Dockerfile -t example-server .
+# Build from the *repository root* so the uv workspace lockfile is in context:
+#
+#   just image-build example-plugin example-server
+#
+# or directly (podman is this repo's default engine; the image is OCI-standard,
+# so docker works identically):
+#
+#   podman build -f example-plugin/servers/example-server/Dockerfile \
+#       -t example-server .
 #
 # The root `uv.lock` pins every workspace member together, so image builds are
 # reproducible and match local development exactly.
@@ -18,12 +27,12 @@ WORKDIR /app
 # Install dependencies first, in their own layer, so edits to server source
 # don't invalidate the (slow) dependency layer.
 COPY pyproject.toml uv.lock ./
-COPY my-plugin/servers/example-server/pyproject.toml my-plugin/servers/example-server/
+COPY example-plugin/servers/example-server/pyproject.toml example-plugin/servers/example-server/
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-install-project --no-dev \
         --package example-server
 
-COPY my-plugin/servers/example-server/ my-plugin/servers/example-server/
+COPY example-plugin/servers/example-server/ example-plugin/servers/example-server/
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-editable --no-dev \
         --package example-server
