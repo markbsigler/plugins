@@ -1,0 +1,91 @@
+my-plugin/servers/example-server/pyproject.toml
+  s_af928bbf9c4a42::t_031fba3c9fc31e 1-18
+my-plugin/mcp.json
+  s_af928bbf9c4a42::t_110afa0df00bf0 4
+.dockerignore
+  s_af928bbf9c4a42::t_e12fc7918a9bb6 1-20
+my-plugin/servers/example-server/Dockerfile
+  s_af928bbf9c4a42::t_d901fb7f628ebd 1-56
+tests/discovery.py
+  s_af928bbf9c4a42::t_470b375b36105d 1-53
+my-plugin/servers/example-server/fastmcp.json
+  s_af928bbf9c4a42::t_e8f814522f357e 1-20
+.pre-commit-config.yaml
+  s_af928bbf9c4a42::t_3ca0eee2d31d0a 4-5,7-11,22-25,41-52
+taplo.toml
+  s_af928bbf9c4a42::t_3953d83c28e03c 1-13
+tests/test_skills.py
+  s_af928bbf9c4a42::t_a5d1026b42ba7a 73-74
+  s_af928bbf9c4a42::t_1ee8745109557b 1-72,75-125,127-144
+  s_af928bbf9c4a42::t_3cd111a90d5eca 126
+tests/test_skill_scripts.py
+  s_af928bbf9c4a42::t_60c102563852c0 1-90
+pyproject.toml
+  s_af928bbf9c4a42::t_2ff53857df98d3 17-18
+  s_af928bbf9c4a42::t_e06470bc903bda 84-86
+  s_af928bbf9c4a42::t_f04ffd73cb87c3 91-93,95-96
+  s_af928bbf9c4a42::t_d5323cae40be11 32-60,65-67
+  s_af928bbf9c4a42::t_dea6348c76988b 61-64
+  s_af928bbf9c4a42::t_6627e8a9aada66 87-90,94,97-102,104
+  s_af928bbf9c4a42::t_45b1731f48e72f 7-12,20,23-24
+  s_af928bbf9c4a42::t_f551eb3d8697a8 83
+my-plugin/skills/example-skill/scripts/word_count.py
+  s_af928bbf9c4a42::t_ad7dfb6a3f563a 38
+scripts/new_server.py
+  s_af928bbf9c4a42::t_d8c52e8be71bc5 1-82
+my-plugin/servers/example-server/src/example_server/server.py
+  s_af928bbf9c4a42::t_2f34c1a1d0b567 1-48
+my-plugin/servers/example-server/src/example_server/__init__.py
+  s_af928bbf9c4a42::t_50b6ba58e4a37a 1-7
+my-plugin/skills/table-stats/scripts/table_stats.py
+  s_af928bbf9c4a42::t_7f08afd3774ad4 56
+  s_af928bbf9c4a42::t_162c3494d1ad91 9
+scripts/new_plugin.py
+  s_af928bbf9c4a42::t_e6f12e6b105340 1-120
+README.md
+  s_af928bbf9c4a42::t_2f3f40994533a6 3-5,8-11,17-36,39,42-45,48-248,253-259
+my-plugin/README.md
+  s_af928bbf9c4a42::t_05fc4d2e2a737f 3-5,9-10,12,14-15,17,19-26,29-46,51,53,55-58,61-74,77-79
+AGENTS.md
+  s_af928bbf9c4a42::t_9bb9e4cbaa6d9d 8-12,15-16,20-42,48-53,57-61,63-66,70-71,73,75-95,99-102,106-108,110,114-122,124,126,128-130,132-134,136-143,145-147,149-160,162-187,190-191,194-253,257-270
+tests/test_servers.py
+  s_af928bbf9c4a42::t_02880639d367f7 1-111
+justfile
+  s_af928bbf9c4a42::t_fa97eb3793c83a 2-4,17,21,25,28,30,33,39-43,47,51,59-60,63,66-98
+  s_af928bbf9c4a42::t_4c9a04d22c1ec5 12-13,15
+LICENSE
+  s_af928bbf9c4a42::t_88fa5ca6ae7733 1-21
+my-plugin/servers/example-server/src/example_server/__main__.py
+  s_af928bbf9c4a42::t_3c34e6f7061bd6 1-64
+my-plugin/plugin.json
+  s_af928bbf9c4a42::t_7a06e03a879631 5
+my-plugin/servers/example-server/tests/test_server.py
+  s_af928bbf9c4a42::t_037ee09a4470e2 1-50
+  s_af928bbf9c4a42::t_e84e80bf9fceda 51
+tests/conftest.py
+  s_af928bbf9c4a42::t_57f937e8f10104 1-31
+tests/test_manifests.py
+  s_af928bbf9c4a42::t_b169c94764cc81 87-102
+  s_af928bbf9c4a42::t_7f0652e7f2fc88 1-23,25-86,103-163
+  s_af928bbf9c4a42::t_5ee8f1cd2023c4 24
+.python-version
+  s_af928bbf9c4a42::t_699aed5f4ac75f 1
+uv.lock
+  s_af928bbf9c4a42::t_c2095a82f3d7be 6-49,70-260,270-394,404-542,568-633,649-663,676-693,706-730,740-772,782-799,816,820-821,823,825,832,836-837,839,841-1011,1023-1045,1062-1178,1206-1218,1367-1419,1453-1771
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "ba329d68e93ba82977054748af23b4dedc308d3a",
+  "prompts": {},
+  "sessions": {
+    "s_af928bbf9c4a42": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "79a46663-a888-4923-afa7-f567ede38d98",
+        "model": "unknown"
+      },
+      "human_author": "Mark B. Sigler <markbsigler@gmail.com>"
+    }
+  }
+}
