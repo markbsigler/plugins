@@ -130,8 +130,19 @@ def test_mcp_remote_urls_are_absolute_https_without_userinfo_or_fragment(
             assert parsed.scheme == "https", f"{name}: non-loopback URL must use HTTPS"
 
 
+def _resolves_inside(plugin_dir: Path, value: str) -> bool:
+    """Return whether a plugin-relative path stays inside the plugin root."""
+    return (plugin_dir / value).resolve().is_relative_to(plugin_dir.resolve())
+
+
 def test_mcp_stdio_commands_stay_inside_the_plugin_root(plugin_dir: Path) -> None:
-    """Spec §4.1: package paths must resolve within the plugin root."""
+    """Spec §4.1: package paths must resolve within the plugin root.
+
+    Checked unconditionally for anything path-like. A previous version only
+    validated commands beginning with ``./``, so ``../../../usr/bin/env``
+    silently passed -- the vendored schema explicitly defers filesystem
+    containment to this layer.
+    """
     mcp_path = plugin_dir / "mcp.json"
     if not mcp_path.exists():
         pytest.skip("plugin declares no MCP servers")
@@ -139,13 +150,52 @@ def test_mcp_stdio_commands_stay_inside_the_plugin_root(plugin_dir: Path) -> Non
     for name, server in load_json(mcp_path)["mcpServers"].items():
         if server["type"] != "stdio":
             continue
+
         command = server["command"]
-        if command.startswith("./"):
-            resolved = (plugin_dir / command).resolve()
-            assert resolved.is_relative_to(plugin_dir.resolve()), (
-                f"{name}: command escapes the plugin root"
+        # Spec §7.2.1: `command` is either a bare executable name resolved via
+        # PATH, or a plugin-relative path beginning with `./`. Anything else --
+        # notably `../` or an absolute path -- is invalid.
+        is_bare_name = "/" not in command and "\\" not in command
+        if not is_bare_name:
+            assert command.startswith("./"), (
+                f"{name}: command {command!r} must be a bare executable name or "
+                "a plugin-relative path beginning with './'"
             )
-            assert resolved.exists(), f"{name}: command {command!r} does not exist"
+            assert _resolves_inside(plugin_dir, command), (
+                f"{name}: command {command!r} escapes the plugin root"
+            )
+            assert (plugin_dir / command).exists(), f"{name}: command {command!r} does not exist"
+
+
+def test_mcp_stdio_cwd_stays_inside_its_root(plugin_dir: Path) -> None:
+    """Spec §7.2.1: `cwd` is plugin-relative, or rooted at a plugin variable.
+
+    A previous version never examined `cwd` at all, so `./../../etc` passed.
+    """
+    mcp_path = plugin_dir / "mcp.json"
+    if not mcp_path.exists():
+        pytest.skip("plugin declares no MCP servers")
+
+    for name, server in load_json(mcp_path)["mcpServers"].items():
+        if server["type"] != "stdio" or "cwd" not in server:
+            continue
+
+        cwd = server["cwd"]
+        for variable in ("${PLUGIN_ROOT}", "${PLUGIN_DATA}"):
+            if cwd == variable:
+                break
+            if cwd.startswith(f"{variable}/"):
+                remainder = cwd[len(variable) + 1 :]
+                assert _resolves_inside(plugin_dir, remainder), (
+                    f"{name}: cwd {cwd!r} escapes {variable}"
+                )
+                break
+        else:
+            assert cwd.startswith("./"), (
+                f"{name}: cwd {cwd!r} must start with './', '${{PLUGIN_ROOT}}', "
+                "or '${PLUGIN_DATA}'"
+            )
+            assert _resolves_inside(plugin_dir, cwd), f"{name}: cwd {cwd!r} escapes the plugin root"
 
 
 def test_mcp_headers_contain_no_obvious_secrets(plugin_dir: Path) -> None:

@@ -37,6 +37,51 @@ plugins/
 └── uv.lock                      # one lockfile for every server
 ```
 
+## Using a plugin
+
+Agent Plugins are consumed by a **client** (an AI agent tool that implements
+the [Agent Plugins specification](https://agent-plugins.org/specification)),
+not installed like a Python package. Each plugin directory in this repo *is*
+the distributable unit: copy it to wherever your client discovers plugins.
+
+```bash
+git clone https://github.com/markbsigler/plugins.git
+cp -r plugins/example-plugin /path/to/your/client/plugins/
+```
+
+The client then reads three things and ignores everything else:
+
+| Path | What the client does with it |
+| --- | --- |
+| `plugin.json` | Identity and metadata — required |
+| `skills/*/SKILL.md` | Loads each skill so the agent can invoke it |
+| `mcp.json` | Connects to the MCP servers listed there |
+
+`servers/` is **build-time source**, not a portable component. Clients ignore
+it. It lives here so a plugin and the server it depends on stay versioned
+together — see [Deploying a plugin's server](#deploying-a-plugins-server).
+
+### Deploying a plugin's server
+
+Because `mcp.json` records a `url`, the server must already be running
+somewhere your client can reach before the plugin is useful:
+
+```bash
+just image-build example-plugin example-server   # build the container
+# push to your registry and deploy it, then:
+# set that URL in example-plugin/mcp.json
+```
+
+Two constraints worth knowing before you deploy:
+
+- **`url` has no variable expansion.** The spec does not expand `${VAR}` in
+  URLs, so one manifest cannot serve dev, staging, and production.
+- **There is no portable auth field.** Agent Plugins v1 defines none —
+  authentication is client-managed, and `headers` in `mcp.json` are visible
+  package data, so credentials must never go there.
+
+---
+
 ## Quick start
 
 **The only prerequisite is [`uv`](https://docs.astral.sh/uv/)** — it bootstraps
@@ -95,9 +140,9 @@ the machine won't start.
 
 ---
 
-# Contributing a new plugin
+## Contributing a new plugin
 
-## 1. Scaffold from the example
+### 1. Scaffold from the example
 
 ```bash
 just new-plugin acme-tools
@@ -113,7 +158,7 @@ Prefer a different server name:
 just new-plugin acme-tools --server-name acme-api
 ```
 
-## 2. Fill in the TODOs
+### 2. Fill in the TODOs
 
 The scaffold deliberately leaves markers that the test suite **fails on** until
 you replace them — that is the guardrail, not a bug:
@@ -132,7 +177,7 @@ Then install the new server into the workspace:
 just sync
 ```
 
-## 3. Write skills
+### 3. Write skills
 
 A skill is a directory under `skills/` containing `SKILL.md` with YAML
 frontmatter. `name` must match the directory name; `description` should say
@@ -176,7 +221,7 @@ chmod +x scripts/lookup.py            # macOS / Linux
 git update-index --chmod=+x scripts/lookup.py   # any platform, incl. Windows
 ```
 
-## 4. Write MCP servers
+### 4. Write MCP servers
 
 Servers use [FastMCP](https://gofastmcp.com/) — the canonical reference for
 the framework — and implement the
@@ -213,7 +258,7 @@ just image-run acme-api                      # run it locally on :8000/mcp
 just image-smoke acme-tools acme-api         # build, run, and verify over HTTP
 ```
 
-### How servers and `mcp.json` relate
+#### How servers and `mcp.json` relate
 
 The server *source* lives in the plugin; the *running service* does not. A
 client never launches these servers — it only reads the `url` from `mcp.json`
@@ -240,7 +285,7 @@ Three constraints worth knowing up front:
 - **`headers` are visible package data.** Never put tokens there — the test
   suite rejects credential-looking header names.
 
-## 5. Test
+### 5. Test
 
 ```bash
 just test          # everything
@@ -270,7 +315,7 @@ For verbose expected values, use
 write `snapshot()`, run `just snapshot-fix`, then **review the diff** — a
 passing fix means code and test agree, not that the value is correct.
 
-## 6. Submit
+### 6. Submit
 
 ```bash
 just check    # must pass
@@ -327,6 +372,14 @@ Canonical sources — prefer these over blog posts or secondary summaries:
 | **FastMCP framework** | **https://gofastmcp.com/** |
 | uv workspaces | https://docs.astral.sh/uv/concepts/projects/workspaces/ |
 | Podman | https://podman.io/docs |
+
+## Project docs
+
+| Document | Purpose |
+| --- | --- |
+| [`AGENTS.md`](./AGENTS.md) | Conventions and rationale — read before contributing |
+| [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Process, ground rules, PR checklist |
+| [`SECURITY.md`](./SECURITY.md) | Reporting vulnerabilities; credential policy |
 
 ## License
 

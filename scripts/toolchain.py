@@ -27,6 +27,9 @@ import shutil
 import subprocess
 import sys
 from dataclasses import dataclass, field
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
 
 IS_WINDOWS = sys.platform == "win32"
 IS_MACOS = sys.platform == "darwin"
@@ -160,6 +163,59 @@ def workspace_tool_ok(name: str) -> bool:
     return proc.returncode == 0
 
 
+def discover_server_packages() -> list[tuple[str, str]]:
+    """Return (package name, importable module) for every workspace server."""
+    servers: list[tuple[str, str]] = []
+    for pyproject in REPO_ROOT.glob("*/servers/*/pyproject.toml"):
+        src = pyproject.parent / "src"
+        if not src.is_dir():
+            continue
+        for candidate in sorted(src.iterdir()):
+            if candidate.is_dir() and (candidate / "__init__.py").is_file():
+                servers.append((pyproject.parent.name, candidate.name))
+    return sorted(servers)
+
+
+def server_package_importable(module: str) -> bool:
+    """Check a workspace server package is installed in the environment.
+
+    Dev-group tools can be present while workspace members are not (a plain
+    ``uv sync`` omits them), so this is checked separately -- otherwise
+    doctor reports success on an environment where ``just test`` fails.
+    """
+    try:
+        proc = subprocess.run(  # noqa: S603
+            ["uv", "run", "--quiet", "python", "-c", f"import {module}"],  # noqa: S607
+            capture_output=True,
+            timeout=120,
+            check=False,
+            cwd=REPO_ROOT,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return proc.returncode == 0
+
+
+def sync_workspace() -> bool:
+    """Install every workspace member (``uv sync --all-packages``).
+
+    A plain ``uv sync`` installs only the root project's dependency groups
+    and actively *uninstalls* workspace members, so servers must be synced
+    explicitly or their tests cannot import them.
+    """
+    print("  sync     uv sync --all-packages")
+    try:
+        proc = subprocess.run(
+            ["uv", "sync", "--all-packages"],  # noqa: S607
+            check=False,
+            cwd=REPO_ROOT,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        print(f"    workspace sync failed: {exc}")
+        return False
+    return proc.returncode == 0
+
+
 def install_tool(tool: Tool, manager: str | None) -> bool:
     """Attempt to install ``tool``. Returns True on success."""
     # Prefer uv for anything published to PyPI: identical on every platform,
@@ -219,6 +275,13 @@ def do_install() -> int:
         print_manual_instructions(failed)
         if any(tool.required for tool in failed):
             return 1
+
+    # Sync the workspace so server packages are importable. Without this the
+    # documented `just install` -> `just check` path fails at collection with
+    # ModuleNotFoundError.
+    if not sync_workspace():
+        print("\nerror: `uv sync --all-packages` failed; the workspace is not usable.")
+        return 1
     return 0
 
 
@@ -250,6 +313,16 @@ def do_doctor(engine: str) -> int:
         else:
             print(f"  {name:<8} MISSING -- run: just sync")
             status = 1
+
+    servers = discover_server_packages()
+    if servers:
+        print("\nWorkspace server packages")
+        for package, module in servers:
+            if server_package_importable(module):
+                print(f"  {package:<24} ok")
+            else:
+                print(f"  {package:<24} NOT INSTALLED -- run: just sync")
+                status = 1
 
     print(f"\nContainer engine ({engine})")
     ready, message = container_engine_status(engine)

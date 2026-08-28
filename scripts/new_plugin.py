@@ -2,50 +2,43 @@
 """Scaffold a new plugin by copying the ``example-plugin`` example.
 
 Usage:
-    just new-plugin my-new-plugin
-    uv run python scripts/new_plugin.py my-new-plugin
+    just new-plugin acme-tools
+    uv run python scripts/new_plugin.py acme-tools
 
 Copies the template, renames the bundled server package, and rewrites the
 identifiers so the result passes ``just check`` immediately -- except for the
-metadata you are expected to personalise (author, homepage, repository),
-which the manifest tests deliberately flag until you edit them.
+metadata you are expected to personalise (description, author, deployed
+server URL), which the manifest tests deliberately flag until you edit them.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
-import re
 import shutil
 import sys
-from pathlib import Path
+from typing import TYPE_CHECKING
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+if TYPE_CHECKING:
+    from pathlib import Path
+
+from _scaffold import (
+    REPO_ROOT,
+    InvalidNameError,
+    default_server_name,
+    module_name_for,
+    rewrite_file,
+    validate_plugin_name,
+    validate_server_name,
+)
+
 TEMPLATE = REPO_ROOT / "example-plugin"
+TEMPLATE_SERVER = "example-server"
+TEMPLATE_MODULE = "example_server"
+TEMPLATE_PLUGIN = "example-plugin"
 
-# Agent Plugins v1.0.0 §5.5 name constraints.
-NAME_PATTERN = re.compile(r"^(?!.*(?:--|\.\.))[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$")
-MAX_NAME_LENGTH = 64
-
-
-def validate_name(name: str) -> None:
-    """Exit with a helpful message if ``name`` violates the spec."""
-    if not 1 <= len(name) <= MAX_NAME_LENGTH:
-        sys.exit(f"error: plugin name must be 1-{MAX_NAME_LENGTH} characters")
-    if not NAME_PATTERN.match(name):
-        sys.exit(
-            f"error: {name!r} is not a valid plugin name.\n"
-            "Use lowercase letters, digits, hyphens, and periods; start and end "
-            "with an alphanumeric character; no '--' or '..'."
-        )
-
-
-def rewrite(path: Path, replacements: dict[str, str]) -> None:
-    """Apply literal string replacements to a text file in place."""
-    text = path.read_text(encoding="utf-8")
-    for old, new in replacements.items():
-        text = text.replace(old, new)
-    path.write_text(text, encoding="utf-8")
+# Suffixes worth rewriting. Files with no suffix (Dockerfile) are included.
+TEXT_SUFFIXES = {".py", ".json", ".toml", ".md", ".txt", ".yaml", ".yml", ""}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -55,20 +48,27 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--server-name",
         default=None,
-        help="Name for the bundled MCP server (default: <name>-server).",
+        help="Name for the bundled MCP server (default: derived from the plugin name).",
+    )
+    parser.add_argument(
+        "--no-server",
+        action="store_true",
+        help="Omit the example MCP server (skills-only plugin).",
     )
     args = parser.parse_args(argv)
 
     name: str = args.name
-    validate_name(name)
+    try:
+        validate_plugin_name(name)
+        server_name: str = args.server_name or default_server_name(name)
+        validate_server_name(server_name)
+        server_module = module_name_for(server_name)
+    except InvalidNameError as exc:
+        return _fail(str(exc))
 
     destination = REPO_ROOT / name
     if destination.exists():
-        sys.exit(f"error: {destination} already exists")
-
-    server_name: str = args.server_name or f"{name}-server"
-    validate_name(server_name)
-    server_module = server_name.replace("-", "_")
+        return _fail(f"{destination.relative_to(REPO_ROOT)} already exists")
 
     shutil.copytree(
         TEMPLATE,
@@ -76,26 +76,42 @@ def main(argv: list[str] | None = None) -> int:
         ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".venv", "*.egg-info"),
     )
 
-    # Rename the bundled server package directory and its Python module.
-    old_server = destination / "servers" / "example-server"
-    new_server = destination / "servers" / server_name
-    old_server.rename(new_server)
-    (new_server / "src" / "example_server").rename(new_server / "src" / server_module)
+    if args.no_server:
+        shutil.rmtree(destination / "servers", ignore_errors=True)
+        (destination / "mcp.json").unlink(missing_ok=True)
+        replacements = {TEMPLATE_PLUGIN: name}
+    else:
+        old_server = destination / "servers" / TEMPLATE_SERVER
+        new_server = destination / "servers" / server_name
+        old_server.rename(new_server)
+        (new_server / "src" / TEMPLATE_MODULE).rename(new_server / "src" / server_module)
+        replacements = {
+            TEMPLATE_SERVER: server_name,
+            TEMPLATE_MODULE: server_module,
+            TEMPLATE_PLUGIN: name,
+        }
 
-    replacements = {
-        "example-server": server_name,
-        "example_server": server_module,
-        "example-plugin": name,
-    }
+    # Single pass per file: replacement output is never re-scanned, so a name
+    # containing "example-plugin" cannot corrupt the generated server name.
     for path in destination.rglob("*"):
-        if path.is_file() and path.suffix in {".py", ".json", ".toml", ".md", ""}:
+        if path.is_file() and path.suffix in TEXT_SUFFIXES:
             try:
-                rewrite(path, replacements)
+                rewrite_file(path, replacements)
             except UnicodeDecodeError:
                 continue  # binary asset; leave untouched
 
-    # Reset version and clear template metadata the author must fill in.
-    manifest_path = destination / "plugin.json"
+    _reset_manifest(destination / "plugin.json", name)
+    _print_next_steps(name, server_name, server_module, with_server=not args.no_server)
+    return 0
+
+
+def _fail(message: str) -> int:
+    print(f"error: {message}", file=sys.stderr)
+    return 1
+
+
+def _reset_manifest(manifest_path: Path, name: str) -> None:
+    """Clear template metadata the author must fill in."""
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     manifest["version"] = "0.1.0"
     manifest["description"] = f"TODO: describe what {name} does."
@@ -103,17 +119,21 @@ def main(argv: list[str] | None = None) -> int:
     manifest.pop("homepage", None)
     manifest.pop("repository", None)
     manifest["keywords"] = []
-    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
 
-    print(f"Created {destination.relative_to(REPO_ROOT)}/")
+
+def _print_next_steps(name: str, server: str, module: str, *, with_server: bool) -> None:
+    print(f"Created {name}/")
     print()
     print("Next steps:")
     print(f"  1. Edit {name}/plugin.json      (description, author, keywords, license)")
-    print(f"  2. Edit {name}/mcp.json         (deployed server URL, or delete if none)")
-    print(f"  3. Rename/replace skills in {name}/skills/")
-    print(f"  4. Implement tools in {name}/servers/{server_name}/src/{server_module}/server.py")
-    print("  5. just sync && just check")
-    return 0
+    print(f"  2. Rename/replace skills in {name}/skills/")
+    if with_server:
+        print(f"  3. Edit {name}/mcp.json         (URL of your deployed server)")
+        print(f"  4. Implement tools in {name}/servers/{server}/src/{module}/server.py")
+        print("  5. just sync && just check")
+    else:
+        print("  3. just sync && just check")
 
 
 if __name__ == "__main__":

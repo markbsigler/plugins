@@ -2,11 +2,11 @@
 """Scaffold a new FastMCP server inside an existing plugin.
 
 Usage:
-    just new-server example-plugin extra-server
-    uv run python scripts/new_server.py example-plugin extra-server
+    just new-server acme-tools acme-api
+    uv run python scripts/new_server.py acme-tools acme-api
 
 Copies the example server package, renames the Python module, and rewrites
-identifiers so ``uv sync`` picks it up as a workspace member immediately.
+identifiers so ``just sync`` picks it up as a workspace member immediately.
 """
 
 from __future__ import annotations
@@ -14,18 +14,16 @@ from __future__ import annotations
 import argparse
 import shutil
 import sys
-from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+from _scaffold import (
+    REPO_ROOT,
+    InvalidNameError,
+    module_name_for,
+    rewrite_file,
+    validate_server_name,
+)
+
 TEMPLATE_SERVER = REPO_ROOT / "example-plugin" / "servers" / "example-server"
-
-
-def rewrite(path: Path, replacements: dict[str, str]) -> None:
-    """Apply literal string replacements to a text file in place."""
-    text = path.read_text(encoding="utf-8")
-    for old, new in replacements.items():
-        text = text.replace(old, new)
-    path.write_text(text, encoding="utf-8")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -37,17 +35,21 @@ def main(argv: list[str] | None = None) -> int:
 
     plugin_dir = REPO_ROOT / args.plugin
     if not (plugin_dir / "plugin.json").is_file():
-        sys.exit(f"error: {args.plugin} is not a plugin (no plugin.json)")
+        return _fail(f"{args.plugin} is not a plugin (no plugin.json)")
 
     server_name: str = args.name
-    if not server_name.replace("-", "").isalnum() or server_name != server_name.lower():
-        sys.exit(f"error: {server_name!r} must be lowercase alphanumeric with hyphens")
+    try:
+        # Stricter than plugin names: a server is a uv workspace member, so an
+        # invalid name breaks `uv sync` for every package in the repo.
+        validate_server_name(server_name)
+        module = module_name_for(server_name)
+    except InvalidNameError as exc:
+        return _fail(str(exc))
 
     destination = plugin_dir / "servers" / server_name
     if destination.exists():
-        sys.exit(f"error: {destination} already exists")
+        return _fail(f"{destination.relative_to(REPO_ROOT)} already exists")
 
-    module = server_name.replace("-", "_")
     destination.parent.mkdir(parents=True, exist_ok=True)
     shutil.copytree(
         TEMPLATE_SERVER,
@@ -64,18 +66,24 @@ def main(argv: list[str] | None = None) -> int:
     for path in destination.rglob("*"):
         if path.is_file():
             try:
-                rewrite(path, replacements)
+                rewrite_file(path, replacements)
             except UnicodeDecodeError:
                 continue
 
-    print(f"Created {destination.relative_to(REPO_ROOT)}/")
+    relative = destination.relative_to(REPO_ROOT)
+    print(f"Created {relative}/")
     print()
     print("Next steps:")
-    print(f"  1. Implement tools in {destination.relative_to(REPO_ROOT)}/src/{module}/server.py")
-    print(f"  2. Update tests in {destination.relative_to(REPO_ROOT)}/tests/")
+    print(f"  1. Implement tools in {relative}/src/{module}/server.py")
+    print(f"  2. Update tests in {relative}/tests/")
     print(f"  3. Add an entry to {args.plugin}/mcp.json pointing at the deployed URL")
     print("  4. just sync && just check")
     return 0
+
+
+def _fail(message: str) -> int:
+    print(f"error: {message}", file=sys.stderr)
+    return 1
 
 
 if __name__ == "__main__":

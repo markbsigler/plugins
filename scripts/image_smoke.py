@@ -11,12 +11,13 @@ removed, including on failure or Ctrl-C.
 from __future__ import annotations
 
 import argparse
-import contextlib
 import shutil
 import socket
 import subprocess
 import sys
 import time
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -60,13 +61,31 @@ def run(
     )
 
 
-def wait_for_port(port: int, timeout: float) -> bool:
-    """Block until ``port`` accepts connections, or ``timeout`` elapses."""
+def wait_for_mcp(port: int, timeout: float) -> bool:
+    """Poll the MCP endpoint until it answers, or ``timeout`` elapses.
+
+    A bare TCP connect is *not* a usable readiness signal here: podman and
+    docker publish the host port via a forwarder that binds and accepts
+    connections before the process inside the container starts listening, so
+    ``socket.create_connection`` succeeds immediately regardless of server
+    state. Probing the actual endpoint is the only reliable gate.
+    """
     deadline = time.monotonic() + timeout
+    request = urllib.request.Request(
+        f"http://127.0.0.1:{port}/mcp",
+        method="GET",
+        headers={"Accept": "text/event-stream"},
+    )
     while time.monotonic() < deadline:
-        with contextlib.suppress(OSError), socket.create_connection(("127.0.0.1", port), timeout=1):
+        try:
+            with urllib.request.urlopen(request, timeout=2):  # noqa: S310
+                return True
+        except urllib.error.HTTPError:
+            # The endpoint exists and is routing -- any HTTP status means the
+            # ASGI app is up, even if this bare GET is not a valid MCP call.
             return True
-        time.sleep(1)
+        except (urllib.error.URLError, OSError, TimeoutError):
+            time.sleep(1)
     return False
 
 
@@ -133,7 +152,7 @@ def main(argv: list[str] | None = None) -> int:
     container_id = started.stdout.strip()
 
     try:
-        if not wait_for_port(port, STARTUP_TIMEOUT_SECONDS):
+        if not wait_for_mcp(port, STARTUP_TIMEOUT_SECONDS):
             print(
                 f"error: container did not listen on port {port} within {STARTUP_TIMEOUT_SECONDS}s"
             )
