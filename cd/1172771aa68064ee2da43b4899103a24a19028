@@ -1,0 +1,84 @@
+README.md
+  s_af928bbf9c4a42::t_f8aff9f6a81365 11-98
+  s_af928bbf9c4a42::t_554434c5162386 8-10
+  s_af928bbf9c4a42::t_ee728153d18f3e 1-7
+.gitignore
+  s_af928bbf9c4a42::t_46d470ca6f944e 9-12
+  s_af928bbf9c4a42::t_108085241d05e1 6-8
+  s_af928bbf9c4a42::t_b9996bb049fedb 13-15
+  s_af928bbf9c4a42::t_af52a0e3a6faf4 1-5,16-27
+my-plugin/README.md
+  s_af928bbf9c4a42::t_c45f365b163f20 80-85
+  s_af928bbf9c4a42::t_af789058137216 77-79
+  s_af928bbf9c4a42::t_2f8f638ec2f615 1-76
+AGENTS.md
+  s_af928bbf9c4a42::t_6561edd4cd0705 393-400
+  s_af928bbf9c4a42::t_79a92c0e0694e8 209,215,293,295,311-380
+  s_af928bbf9c4a42::t_b2229300f5b3b5 21-30
+  s_af928bbf9c4a42::t_31cc9e925c31c8 217-258
+  s_af928bbf9c4a42::t_e37a5162ecc7ca 18-20
+  s_af928bbf9c4a42::t_96331a511931c5 31-33,206-208
+  s_af928bbf9c4a42::t_38c15472b50330 210-214
+  s_af928bbf9c4a42::t_d3e5ab302d5790 216
+  s_af928bbf9c4a42::t_6f964d794a4a20 259-261,290-292
+  s_af928bbf9c4a42::t_0826b894699eae 294
+  s_af928bbf9c4a42::t_ecf973fa61e83f 296-298,308-310
+  s_af928bbf9c4a42::t_ed7efc5f451393 381-383,390-392
+  s_af928bbf9c4a42::t_c4dd465008ae87 1-17,34-205,262-289,299-307,384-389
+my-plugin/servers/echo_server.py
+  s_af928bbf9c4a42::t_5e288484748754 1-38
+my-plugin/skills/example-skill/scripts/word_count.py
+  s_af928bbf9c4a42::t_021ff1ac93275f 1-58
+my-plugin/skills/table-stats/scripts/table_stats.py
+  s_af928bbf9c4a42::t_bed12dddb7eff2 1-72
+schemas/1.0.0/mcp.schema.json
+  s_af928bbf9c4a42::t_fe59aead705c64 1-120
+schemas/1.0.0/plugin.schema.json
+  s_af928bbf9c4a42::t_cb7dc711c16cac 1-65
+tests/test_my_plugin_scripts.py
+  s_af928bbf9c4a42::t_86d1b53dff6486 1-62
+uv.lock
+  s_af928bbf9c4a42::t_7eab95a95aab07 1-393
+.pre-commit-config.yaml
+  s_af928bbf9c4a42::t_8fd663b6072f01 1-58
+.trivyignore
+  s_af928bbf9c4a42::t_1d8513a16b2384 1-7
+justfile
+  s_af928bbf9c4a42::t_6a30db0e9ccc71 1-58
+my-plugin/mcp.json
+  s_af928bbf9c4a42::t_bc6f23e76305d7 1-18
+my-plugin/plugin.json
+  s_af928bbf9c4a42::t_476bfa0f5e503f 1-14
+my-plugin/servers/remote_server.py
+  s_af928bbf9c4a42::t_9906484edd4823 1-105
+my-plugin/skills/example-skill/SKILL.md
+  s_af928bbf9c4a42::t_a69c5883956021 1-40
+my-plugin/skills/table-stats/SKILL.md
+  s_af928bbf9c4a42::t_f5eb911bb535f8 1-48
+pyproject.toml
+  s_af928bbf9c4a42::t_d5ecd71018a573 1-40
+tests/test_my_plugin_manifest.py
+  s_af928bbf9c4a42::t_04f6b90779c337 1-112
+tests/test_my_plugin_servers.py
+  s_af928bbf9c4a42::t_7a609b786c0980 1-183
+tests/test_schema_validation.py
+  s_af928bbf9c4a42::t_89b670a8fbbecd 1-80
+trivy.yaml
+  s_af928bbf9c4a42::t_ea8df2ae38d962 1-25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "cd1172771aa68064ee2da43b4899103a24a19028",
+  "prompts": {},
+  "sessions": {
+    "s_af928bbf9c4a42": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "79a46663-a888-4923-afa7-f567ede38d98",
+        "model": "unknown"
+      },
+      "human_author": "Mark B. Sigler <markbsigler@gmail.com>"
+    }
+  }
+}
