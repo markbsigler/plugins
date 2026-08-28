@@ -1,0 +1,25 @@
+# Trivy configuration for this repository.
+# Usage: trivy fs --config trivy.yaml .
+#
+# Scans for known vulnerabilities in dependencies (uv.lock / any
+# PEP 723 script dependencies), hardcoded secrets, and misconfigurations.
+# See https://trivy.dev/latest/docs/configuration/config-file/ for all keys.
+
+scan:
+  scanners:
+    - vuln
+    - secret
+    - misconfig
+  skip-dirs:
+    - "**/.venv"
+    - "**/__pycache__"
+    - "**/.mypy_cache"
+    - "**/.ruff_cache"
+    - "**/.pytest_cache"
+
+severity:
+  - CRITICAL
+  - HIGH
+  - MEDIUM
+
+exit-code: 1

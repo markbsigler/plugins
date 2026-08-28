@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.ty_cache/
+
+# inline-snapshot external() storage (unused today, but reserved)
+.inline-snapshot/
+
+# Virtual environments
+.venv/
+venv/
+
+# uv
+.uv/
+
+# Plugin runtime data (client-provided PLUGIN_DATA directories, if created locally)
+**/.plugin-data/
+
+# Editors / OS
+.DS_Store
+.vscode/
+!.vscode/extensions.json

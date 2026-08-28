@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "my-plugin",
+  "version": "0.1.0",
+  "description": "Example Agent Plugin scaffold demonstrating the Agent Plugins v1.0.0 package format with a Python-based skill and a Python-based MCP server.",
+  "author": {
+    "name": "Your Name",
+    "url": "https://example.com"
+  },
+  "homepage": "https://example.com/my-plugin",
+  "repository": "https://github.com/your-org/plugins",
+  "license": "MIT",
+  "keywords": ["example", "scaffold", "template"]
+}

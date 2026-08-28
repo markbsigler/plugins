@@ -1,0 +1,7 @@
+# Suppressions for `trivy` findings we've explicitly reviewed and accepted.
+# Format: one finding ID (CVE-..., or a secret rule ID) per line, optionally
+# followed by `exp:YYYY-MM-DD` to auto-expire the suppression.
+# See https://trivy.dev/latest/docs/configuration/filtering/#trivyignore
+#
+# Keep this empty unless a finding has been triaged and documented with a
+# comment explaining why it's safe to ignore.
