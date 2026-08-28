@@ -36,9 +36,13 @@ https://gofastmcp.com/ — its API changed meaningfully in 3.x.
   new plugin** — run `just new-plugin <name>`, which copies it and rewrites
   every identifier.
 - Repo-level tooling — `README.md`, `AGENTS.md`, `pyproject.toml`, `justfile`,
-  `.pre-commit-config.yaml`, `schemas/`, `scripts/`, `tests/` — is not plugin
-  content. Never place it inside a plugin, and never make plugin behavior
-  depend on it.
+  `.gitattributes`, `.pre-commit-config.yaml`, `schemas/`, `scripts/`,
+  `tests/` — is not plugin content. Never place it inside a plugin, and never
+  make plugin behavior depend on it.
+- `scripts/` holds the cross-platform Python helpers that back the `justfile`
+  (`toolchain.py`, `new_plugin.py`, `new_server.py`, `image_smoke.py`,
+  `run_server.py`, `security_scan.py`, `update_schemas.py`). Add logic here
+  rather than in a recipe — see §1.3.
 - [`schemas/1.0.0/`](./schemas/1.0.0) vendors the canonical Agent Plugins JSON
   Schemas used by the tests. Refresh with `just update-schemas`.
 
@@ -55,16 +59,56 @@ servers, and their tests will fail to import.
 
 ### 1.2 Environment setup
 
-Run **`just install`** on a new machine: it installs `uv`, `just`, `podman`,
-and `trivy` (via Homebrew, with manual instructions as a fallback) and then
-syncs the workspace. It is idempotent, so re-run it any time.
+**`uv` is the single hard prerequisite.** Everything else bootstraps from it:
+`just` installs from PyPI (`uv tool install rust-just`, which has wheels for
+macOS, Linux, and Windows), and the Python tools come from the workspace.
 
-**`just doctor`** reports the status of every required tool and the container
-engine without changing anything — use it first when something behaves
-unexpectedly.
+Run **`just install`** on a new machine: it detects the platform's package
+manager (Homebrew, apt, dnf, pacman, zypper, winget, scoop, Chocolatey),
+installs what's missing, and syncs the workspace. It is idempotent.
+
+**`just doctor`** reports the status of every tool and the container engine
+without changing anything — run it first when something behaves unexpectedly.
+
+`podman` and `trivy` are **optional**: development, testing, and linting work
+without them. `just security` skips cleanly when `trivy` is absent.
 
 Python tools (`ruff`, `ty`, `taplo`, `typos`, `pytest`) come from the uv
-workspace, not Homebrew. Never install them separately.
+workspace, not a package manager. Never install them separately.
+
+### 1.3 Portability rules
+
+This repo must work on **macOS, Linux, and Windows**. Two rules keep it that
+way, both enforced by `tests/test_portability.py`:
+
+1. **`justfile` recipes must be shell-agnostic.** A recipe is a single
+   command. No bash shebangs, `&&`, `||`, pipes, `$(...)`, redirects, or
+   loops — Windows has no bash, and `set windows-shell` routes to PowerShell.
+   Anything needing logic goes in `scripts/*.py` and is invoked via `uv`:
+
+   ```make
+   # wrong -- POSIX only
+   doctor:
+       for t in uv just; do command -v $t || echo missing; done
+
+   # right -- runs anywhere
+   doctor:
+       uv run python scripts/toolchain.py doctor
+   ```
+
+2. **Text files are LF.** `.gitattributes` enforces this. A CRLF after a
+   `#!/usr/bin/env -S uv run --script` shebang produces a baffling "bad
+   interpreter" error on Unix.
+
+Also:
+
+- Skill scripts keep their shebang *and* are documented with the portable
+  `uv run --script <path>` invocation, because Windows ignores shebangs.
+- The executable bit is asserted from **git's index mode** (`100755`), not the
+  filesystem, so the check is meaningful on Windows. Set it with
+  `git update-index --chmod=+x <path>` if `chmod` isn't available.
+- Use `pathlib`, never string path concatenation or hardcoded `/`.
+- Container `CMD` uses `python -m <package>`, never a platform-specific path.
 
 ## 2. The Agent Plugins package format (summary)
 

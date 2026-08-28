@@ -22,8 +22,11 @@ Run the bundled script against a file path or piped text, then report the
 counts back to the user:
 
 ```bash
+# Portable (works on macOS, Linux, and Windows)
+uv run --script scripts/word_count.py path/to/file.txt
+
+# On macOS/Linux the shebang also lets you run it directly
 ./scripts/word_count.py path/to/file.txt
-# or
 echo "some text" | ./scripts/word_count.py
 ```
 

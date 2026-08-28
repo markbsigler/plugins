@@ -26,8 +26,12 @@ Run the bundled script against the file, then summarize the JSON result for
 the user in plain language:
 
 ```bash
+# Portable (works on macOS, Linux, and Windows)
+uv run --script scripts/table_stats.py path/to/data.csv
+uv run --script scripts/table_stats.py path/to/data.tsv --separator "	"
+
+# On macOS/Linux the shebang also lets you run it directly
 ./scripts/table_stats.py path/to/data.csv
-./scripts/table_stats.py path/to/data.tsv --separator $'\t'
 ```
 
 The script prints one JSON object shaped like:

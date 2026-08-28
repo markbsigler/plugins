@@ -1,0 +1,42 @@
+# Normalize line endings so a Windows checkout cannot break Unix tooling.
+#
+# Without this, git may check out shell scripts and PEP 723 skill scripts with
+# CRLF on Windows. A CRLF after `#!/usr/bin/env -S uv run --script` makes the
+# interpreter path unparsable on Linux/macOS, producing a confusing
+# "bad interpreter" error. Forcing LF for executable text keeps the repo
+# byte-identical across platforms.
+
+# Default: normalize text in the repo, let git decide the working-copy ending.
+* text=auto eol=lf
+
+# Anything executed by a shebang, or read by a Unix shell, must be LF.
+*.py     text eol=lf
+*.sh     text eol=lf
+*.bash   text eol=lf
+justfile text eol=lf
+Dockerfile text eol=lf
+*.toml   text eol=lf
+*.yaml   text eol=lf
+*.yml    text eol=lf
+*.json   text eol=lf
+*.md     text eol=lf
+.gitattributes text eol=lf
+.gitignore     text eol=lf
+.dockerignore  text eol=lf
+
+# Windows-native helpers keep CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Never touch binaries.
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz  binary
+
+# Lockfiles are generated; keep diffs collapsed in review tooling.
+uv.lock linguist-generated=true -diff

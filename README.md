@@ -39,25 +39,59 @@ plugins/
 
 ## Quick start
 
+**The only prerequisite is [`uv`](https://docs.astral.sh/uv/)** — it bootstraps
+everything else, including `just`.
+
 ```bash
-git clone <this-repo> && cd plugins
-just install                    # installs uv, just, podman, trivy + syncs the workspace
-just install-hooks              # optional: pre-commit git hook
-just check                      # lint + format + types + spelling + tests + security
+# macOS / Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows (PowerShell)
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-`just install` is idempotent — re-run it any time to verify your setup.
-`just doctor` reports the status of every required tool without changing
-anything.
+Then, on any platform:
 
-Container images are built and run with [Podman](https://podman.io/)
-(rootless, daemonless). The `Dockerfile` is OCI-standard, so Docker works too:
-pass `just container=docker <recipe>`.
+```bash
+git clone <this-repo> && cd plugins
+uv tool install rust-just     # installs `just` from PyPI (all platforms)
+just install                  # installs remaining tools + syncs the workspace
+just check                    # lint + format + types + spelling + tests + security
+```
 
-If Podman is installed but its VM isn't running, `just doctor` will tell you —
-start it with `podman machine start` (or `podman machine init` the first time).
-On macOS a `libkrun` machine additionally needs `krunkit`:
-`brew tap slp/krun && brew install krunkit`.
+`just install` is idempotent — re-run it any time. `just doctor` reports the
+status of every tool without changing anything, and is the first thing to run
+when something misbehaves.
+
+### Platform support
+
+Everything here runs on **macOS, Linux, and Windows**. Recipes contain no
+shell-specific logic: anything needing real logic lives in `scripts/*.py` and
+runs through `uv`, and `tests/test_portability.py` enforces that.
+
+| Tool | Required? | How it installs |
+| --- | --- | --- |
+| `uv` | **Required** | Official installer (above); cannot self-install |
+| `just` | **Required** | `uv tool install rust-just` — works on all platforms |
+| `ruff`, `ty`, `taplo`, `typos`, `pytest` | **Required** | `just sync` (uv workspace) |
+| `podman` | Optional | `just install`, or your package manager |
+| `trivy` | Optional | `just install`, or your package manager |
+
+`podman` and `trivy` are optional: without them you can still develop, test,
+and lint. `just security` skips cleanly if `trivy` is absent, and only the
+container recipes need `podman`.
+
+`just install` detects your package manager — Homebrew, apt, dnf, pacman,
+zypper, winget, scoop, or Chocolatey — and prints manual instructions if it
+can't find one.
+
+Container images are built with [Podman](https://podman.io/) (rootless,
+daemonless). The `Dockerfile` is OCI-standard, so Docker works too: pass
+`just container=docker <recipe>`.
+
+On macOS, a `libkrun` Podman machine additionally needs `krunkit`
+(`brew tap slp/krun && brew install krunkit`); `just doctor` will say so if
+the machine won't start.
 
 ---
 
@@ -115,8 +149,12 @@ description: Looks up an Acme part number and returns its specifications. Use wh
 
 Run the bundled script and summarize the result:
 
-    ./scripts/lookup.py <part-number>
+    uv run --script scripts/lookup.py <part-number>
 ```
+
+On macOS/Linux the shebang also allows `./scripts/lookup.py`. Prefer showing
+the `uv run --script` form in `SKILL.md`, since Windows does not honor
+shebangs.
 
 Bundled scripts are self-contained [PEP 723](https://peps.python.org/pep-0723/)
 files — dependencies are declared inline and resolved by `uv`, so no install
@@ -130,7 +168,13 @@ step is needed and the skill directory stays copyable:
 # ///
 ```
 
-Make them executable (`chmod +x`) — the test suite enforces this.
+Mark them executable — the test suite enforces this via git's index mode, so
+it works the same on every platform:
+
+```bash
+chmod +x scripts/lookup.py            # macOS / Linux
+git update-index --chmod=+x scripts/lookup.py   # any platform, incl. Windows
+```
 
 ## 4. Write MCP servers
 
@@ -252,18 +296,21 @@ All Python tooling runs through [`uv`](https://docs.astral.sh/uv/) — no `venv`
 own package, resolved into one root `uv.lock` so container builds are
 reproducible.
 
-| Tool | Purpose | Recipe |
-| --- | --- | --- |
-| [`uv`](https://docs.astral.sh/uv/) | Packaging + workspace (Rust) | `just sync` |
-| [`ruff`](https://docs.astral.sh/ruff/) | Lint + format (Rust) | `just lint` / `just fmt` |
-| [`ty`](https://docs.astral.sh/ty/) | Type check (Rust) | `just typecheck` |
-| [`taplo`](https://taplo.tamasfe.dev/) | TOML format (Rust) | `just fmt` |
-| [`typos`](https://github.com/crate-ci/typos) | Spell check (Rust) | `just spell` |
-| [`pytest`](https://docs.pytest.org/) | Tests | `just test` |
-| [`trivy`](https://trivy.dev/) | Vulns, secrets, misconfig (Go) | `just security` |
-| [`podman`](https://podman.io/) | Container build + run (Go) | `just image-build` |
-| [`just`](https://just.systems/) | Task runner (Rust) | `just --list` |
-| [`pre-commit`](https://pre-commit.com/) | Git hooks | `just install-hooks` |
+| Tool | Purpose | Platforms | Recipe |
+| --- | --- | --- | --- |
+| [`uv`](https://docs.astral.sh/uv/) | Packaging + workspace (Rust) | all | `just sync` |
+| [`just`](https://just.systems/) | Task runner (Rust) | all (PyPI: `rust-just`) | `just --list` |
+| [`ruff`](https://docs.astral.sh/ruff/) | Lint + format (Rust) | all | `just lint` / `just fmt` |
+| [`ty`](https://docs.astral.sh/ty/) | Type check (Rust) | all | `just typecheck` |
+| [`taplo`](https://taplo.tamasfe.dev/) | TOML format (Rust) | all | `just fmt` |
+| [`typos`](https://github.com/crate-ci/typos) | Spell check (Rust) | all | `just spell` |
+| [`pytest`](https://docs.pytest.org/) | Tests | all | `just test` |
+| [`trivy`](https://trivy.dev/) | Vulns, secrets, misconfig (Go) | all, *optional* | `just security` |
+| [`podman`](https://podman.io/) | Container build + run (Go) | all, *optional* | `just image-build` |
+| [`pre-commit`](https://pre-commit.com/) | Git hooks | all | `just install-hooks` |
+
+Every tool above except `podman` and `trivy` installs from PyPI through `uv`,
+which is why `uv` is the single prerequisite.
 
 Run `just` to list every recipe, or `just doctor` to check your setup.
 Conventions and rationale live in [`AGENTS.md`](./AGENTS.md).
