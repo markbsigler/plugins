@@ -197,8 +197,10 @@ update-schemas version="1.0.0":
 # ---------------------------------------------------------------------------
 
 # Build a server's image. Runs from the repo root so uv.lock is in context.
+# `--format docker` preserves HEALTHCHECK, which the default OCI format drops.
 image-build plugin server tag="latest":
-    {{ container }} build -f {{ plugin }}/servers/{{ server }}/Dockerfile \
+    {{ container }} build --format docker \
+        -f {{ plugin }}/servers/{{ server }}/Dockerfile \
         -t {{ server }}:{{ tag }} .
 
 # Run a server's image locally on http://127.0.0.1:<port>/mcp

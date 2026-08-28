@@ -54,6 +54,11 @@ Container images are built and run with [Podman](https://podman.io/)
 (rootless, daemonless). The `Dockerfile` is OCI-standard, so Docker works too:
 pass `just container=docker <recipe>`.
 
+If Podman is installed but its VM isn't running, `just doctor` will tell you —
+start it with `podman machine start` (or `podman machine init` the first time).
+On macOS a `libkrun` machine additionally needs `krunkit`:
+`brew tap slp/krun && brew install krunkit`.
+
 ---
 
 # Contributing a new plugin

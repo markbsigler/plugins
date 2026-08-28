@@ -220,8 +220,16 @@ introduce podman-only or docker-only build syntax.
 Dockerfile requirements (enforced by `tests/test_servers.py`):
 
 - Multi-stage, so the runtime image excludes build tooling.
-- A `USER` instruction — never run as root.
+- A `USER` instruction — never run as root. Use a plain (non-`--system`)
+  account: system UIDs must be below `SYS_UID_MAX` (999), so `--system` with
+  a UID like 1001 warns during build.
 - Build from the **repo root** so the workspace `uv.lock` is in context.
+
+**Podman gotcha:** `HEALTHCHECK` is a Docker-format instruction. Podman
+defaults to the OCI image format, which has no equivalent and *silently
+drops it* with only a warning. The `image-build` recipe therefore passes
+`--format docker`. If you build by hand, do the same or your healthcheck
+will not exist.
 
 If a container command fails, run `just doctor` first: the engine is commonly
 installed but not started (`podman machine start`).
