@@ -1,0 +1,74 @@
+README.md
+  s_af928bbf9c4a42::t_65a2fdd37cb371 43-44,49-55
+  s_af928bbf9c4a42::t_53fe02f8513a3a 132-138
+  s_af928bbf9c4a42::t_00100298bd7720 252,259-260,263-264,268-277
+  s_af928bbf9c4a42::t_bd7e4f8b074bfb 5,10-12,18-21,25,32-37
+  s_af928bbf9c4a42::t_5ffc745957de70 161-164
+  s_af928bbf9c4a42::t_20cd7694909bdd 56
+  s_af928bbf9c4a42::t_9e332defacc04e 67
+example-plugin/servers/example-server/src/example_server/server.py
+  s_af928bbf9c4a42::t_3b247d3521640a 6-9
+  s_af928bbf9c4a42::t_8aa45f992816ba 1,17,19
+example-plugin/servers/example-server/src/example_server/__main__.py
+  s_af928bbf9c4a42::t_70abd67345bc4c 6-9
+scripts/new_server.py
+  s_af928bbf9c4a42::t_9349518aa39e8b 77
+  s_af928bbf9c4a42::t_0ac54a852bc1ad 5-6,20,62
+example-plugin/servers/example-server/Dockerfile
+  s_af928bbf9c4a42::t_16e6e934c8aa4c 2-15
+  s_af928bbf9c4a42::t_4d7607a1730091 30,35
+example-plugin/README.md
+  s_af928bbf9c4a42::t_2d7722655af74e 57-59
+  s_af928bbf9c4a42::t_f41dfb74498e9c 81-87
+  s_af928bbf9c4a42::t_162d6154615a61 56
+  s_af928bbf9c4a42::t_763bfaa95164ac 1,8
+AGENTS.md
+  s_af928bbf9c4a42::t_e4ace1a6d296b2 166-170
+  s_af928bbf9c4a42::t_12131aade47d8b 14-28
+  s_af928bbf9c4a42::t_abce3b9603adfa 280-281,288
+  s_af928bbf9c4a42::t_8d8b67465240c4 205-228
+  s_af928bbf9c4a42::t_22f6c1795dc3ab 191
+  s_af928bbf9c4a42::t_1a4216a5b24f95 56-68
+  s_af928bbf9c4a42::t_a60febedf25d12 229
+  s_af928bbf9c4a42::t_bbaae6ad14f88f 35,89,240,262,273,302
+scripts/new_plugin.py
+  s_af928bbf9c4a42::t_0901fe4fdf824d 115
+  s_af928bbf9c4a42::t_ebba15d9e2033f 2,24,88
+justfile
+  s_af928bbf9c4a42::t_1bec860abd6ffb 2-6,10-12,17-58,65-81,83-85,87-89,91-98,106-107,112-119,170-172,174,186-193,195-228
+  s_af928bbf9c4a42::t_3cfbcf59b60106 59-64
+  s_af928bbf9c4a42::t_40f1fa164a053b 82,86,90,99-105
+  s_af928bbf9c4a42::t_6b47997c4cd592 108
+example-plugin/mcp.json
+  s_af928bbf9c4a42::t_fd9c22e703f704 6
+example-plugin/plugin.json
+  s_af928bbf9c4a42::t_ffb24b8a95b823 3,10
+example-plugin/servers/example-server/pyproject.toml
+  s_af928bbf9c4a42::t_071464c2903d0f 4
+example-plugin/servers/example-server/src/example_server/__init__.py
+  s_af928bbf9c4a42::t_8ea8b2c413ce55 1
+example-plugin/skills/example-skill/SKILL.md
+  s_af928bbf9c4a42::t_cd8a2ae9263512 11
+tests/test_manifests.py
+  s_af928bbf9c4a42::t_f445af41846279 32,77-78,89-90
+tests/test_skill_scripts.py
+  s_af928bbf9c4a42::t_794a407e1d8acd 69,79
+uv.lock
+  s_af928bbf9c4a42::t_ee8c8b153be43a 375
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "3de1e0976f2cf10fa996977d17721c02163e1792",
+  "prompts": {},
+  "sessions": {
+    "s_af928bbf9c4a42": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "79a46663-a888-4923-afa7-f567ede38d98",
+        "model": "unknown"
+      },
+      "human_author": "Mark B. Sigler <markbsigler@gmail.com>"
+    }
+  }
+}
