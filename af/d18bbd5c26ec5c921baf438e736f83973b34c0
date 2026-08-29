@@ -1,0 +1,88 @@
+tests/test_update_schemas.py
+  s_af928bbf9c4a42::t_a8abcaea04098f 1-70,73-82
+  s_af928bbf9c4a42::t_808032fbed7792 71-72
+.gitignore
+  s_af928bbf9c4a42::t_5d390431108a87 10-13
+AGENTS.md
+  s_af928bbf9c4a42::t_c492a0748f708a 313-325
+tests/test_scaffolding.py
+  s_af928bbf9c4a42::t_b150fbcf21ac55 187-188,190-200
+  s_af928bbf9c4a42::t_5d5c0006c0a1d1 390-404
+  s_af928bbf9c4a42::t_cbc6ba13fb4141 65-81
+  s_af928bbf9c4a42::t_e814075d282920 139-144,146,156-162,171-173,176-178,181-182,184,203-204,206-207,209-249,251-297,321,323-325,327-389
+  s_af928bbf9c4a42::t_7bfdee5252eac5 163-167,169-170
+  s_af928bbf9c4a42::t_49928591cf53b8 127-136
+  s_af928bbf9c4a42::t_8e36a5cebd8b45 29
+  s_af928bbf9c4a42::t_6f41c8823c7217 179
+  s_af928bbf9c4a42::t_60b5e2daa25cd7 250
+  s_af928bbf9c4a42::t_407f8c2cd1727e 299-307,309-316
+  s_af928bbf9c4a42::t_93d39eda6084d1 138,298,320,405-408
+tests/test_run_server.py
+  s_af928bbf9c4a42::t_bd037b3d7ea36f 92
+  s_af928bbf9c4a42::t_1443c398d64ba1 66
+  s_af928bbf9c4a42::t_ce7656c49ece6f 44
+  s_af928bbf9c4a42::t_22f8ab8deda0d6 89
+  s_af928bbf9c4a42::t_e370a694957855 1-43,45-65,67-88,90-91,93-99
+justfile
+  s_af928bbf9c4a42::t_3dacaf15bd472a 81-84
+tests/test_security_scan.py
+  s_af928bbf9c4a42::t_bbe9cb665da1fd 1-44
+pyproject.toml
+  s_af928bbf9c4a42::t_f0b0b0a4d0345f 126
+  s_af928bbf9c4a42::t_8c75ac53a9b067 21
+  s_af928bbf9c4a42::t_5344b233a001e0 110-125,127
+tests/test_toolchain.py
+  s_af928bbf9c4a42::t_39abf02e81ce15 370-383
+  s_af928bbf9c4a42::t_2b8a17a1a4ba33 199
+  s_af928bbf9c4a42::t_80f95017524f53 465
+  s_af928bbf9c4a42::t_112af6f4ca704c 257-259
+  s_af928bbf9c4a42::t_ce42f172994466 1-35,38-50,53-73,76-120,123-136,138-144,146-149,152-172,175-198,200-203,206-219,222-239,242-256,260-277,280-292,295-345,348-350,352-369,384-419,421-422,424-425,427-440,442-443,445-455,457-462,466-490
+  s_af928bbf9c4a42::t_9a49a5cc24d4b9 36-37
+  s_af928bbf9c4a42::t_1bdbd3e5612a45 51-52
+  s_af928bbf9c4a42::t_98216ee7ac8555 74-75
+  s_af928bbf9c4a42::t_e7b1d4a6686cee 121-122
+  s_af928bbf9c4a42::t_a814a8606802e9 137
+  s_af928bbf9c4a42::t_53b6d7993c5c65 145
+  s_af928bbf9c4a42::t_23d7217345d038 150-151
+  s_af928bbf9c4a42::t_423a13bc6b779a 173-174
+  s_af928bbf9c4a42::t_6d15ee2a5fcd02 204-205
+  s_af928bbf9c4a42::t_b05a4eeb223696 220-221
+  s_af928bbf9c4a42::t_8589e123385298 240-241
+  s_af928bbf9c4a42::t_d1f0ba4c825804 278-279
+  s_af928bbf9c4a42::t_07ff21bec33c0b 293-294
+  s_af928bbf9c4a42::t_306426396f1ef3 346-347
+  s_af928bbf9c4a42::t_25fe75fa81aea9 351
+  s_af928bbf9c4a42::t_187fd2c0cc7ae1 420
+  s_af928bbf9c4a42::t_369fe6dfd63073 423
+  s_af928bbf9c4a42::t_9bb24c95779f94 426
+  s_af928bbf9c4a42::t_90d1ba08628909 441
+  s_af928bbf9c4a42::t_4d55e3c3195269 444
+  s_af928bbf9c4a42::t_27be2e29b07bc5 456
+  s_af928bbf9c4a42::t_cb20134875bb0b 463-464
+tests/test_image_smoke.py
+  s_af928bbf9c4a42::t_2f80199a1b6299 108-110
+  s_af928bbf9c4a42::t_e3d7b03855439f 1-13,15-37,39-42,44-46,48-70,72-107,111-154,156-264
+  s_af928bbf9c4a42::t_23d6f001c618b0 155
+  s_af928bbf9c4a42::t_90c70f7ecda9c0 14
+  s_af928bbf9c4a42::t_dc86048db6925d 71
+  s_af928bbf9c4a42::t_6d380c6033cd6b 38,43,47
+example-plugin/servers/example-server/tests/test_main.py
+  s_af928bbf9c4a42::t_5dad2579de709f 73,75
+  s_af928bbf9c4a42::t_dd86b98d770319 1-72,74,76-101
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "afd18bbd5c26ec5c921baf438e736f83973b34c0",
+  "prompts": {},
+  "sessions": {
+    "s_af928bbf9c4a42": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "79a46663-a888-4923-afa7-f567ede38d98",
+        "model": "unknown"
+      },
+      "human_author": "Mark B. Sigler <markbsigler@gmail.com>"
+    }
+  }
+}
