@@ -310,6 +310,19 @@ just test-fast     # skip subprocess/network round trips
   verbose expected values: write `snapshot()`, run `just snapshot-fix`, then
   **read the diff**. A passing fix means code and test agree — not that the
   new value is correct.
+- **`scripts/*.py` are tested by importing and calling `main()` directly**
+  (mocking `subprocess.run`, `shutil.which`, `urllib.request.urlopen`, etc.),
+  not by spawning `uv run python scripts/x.py` for every scenario. A
+  subprocess sees a separate interpreter, so coverage tooling can't measure
+  it and slow, real system dependencies creep in. Keep at most one real
+  subprocess-based smoke test per script to prove the actual CLI/shebang
+  wiring works (see `test_new_plugin_cli_works_as_documented`); put every
+  other scenario through a direct `main()` call.
+- Run `just coverage` (`pytest --cov --cov-report=annotate:cov_annotate`)
+  periodically. `[tool.coverage.run].source` in `pyproject.toml` scopes
+  measurement to `scripts/` and each server's `src/`, since those are the
+  only code importable in-process; PEP 723 skill scripts run only via `uv
+  run --script` subprocesses and are not measured this way.
 
 ### 3.7 Code quality
 

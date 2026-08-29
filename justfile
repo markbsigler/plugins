@@ -78,6 +78,10 @@ test:
 test-fast:
     uv run pytest -m "not slow"
 
+# Run tests with a coverage report; see cov_annotate/ for line-by-line detail.
+coverage:
+    uv run pytest --cov --cov-report=term-missing --cov-report=annotate:cov_annotate
+
 # Update inline-snapshot values after an intentional change (review the diff!).
 snapshot-fix:
     uv run pytest --inline-snapshot=fix

@@ -18,6 +18,7 @@ dev = [
   "typos>=1.30",
   "pytest>=8.3",
   "pytest-asyncio>=0.24",
+  "pytest-cov>=6.0",
   "inline-snapshot>=0.20",
   "jsonschema>=4.23",
   "pyyaml>=6.0",
@@ -105,4 +106,22 @@ filterwarnings = [
 ]
 markers = [
   "slow: exercises a real subprocess or network round trip (deselect with -m 'not slow')",
+]
+
+[tool.coverage.run]
+# `scripts/*.py` are added to sys.path at runtime (not an installed package),
+# and `example_server` is a uv workspace member installed editable into the
+# same venv -- both are measurable in-process by path.
+source = [
+  "scripts",
+  "example-plugin/servers/example-server/src",
+]
+relative_files = true
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+  "pragma: no cover",
+  "^\\s*if __name__ == .__main__.:",
+  "^\\s*if TYPE_CHECKING:",
 ]

@@ -7,6 +7,10 @@ __pycache__/
 .ruff_cache/
 .pytest_cache/
 .ty_cache/
+.coverage
+.coverage.*
+htmlcov/
+cov_annotate/
 
 # inline-snapshot external() storage (unused today, but reserved)
 .inline-snapshot/
