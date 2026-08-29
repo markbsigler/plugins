@@ -1,8 +1,8 @@
 # Contributing
 
 Thanks for contributing. The full walkthrough lives in the
-[README](./README.md#contributing-a-new-plugin); this page covers the process
-around it.
+[README](./README.md#creating-a-plugin); this page covers the process around
+it.
 
 ## Before you start
 

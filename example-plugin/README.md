@@ -75,9 +75,8 @@ Set the allowlists to your public hostname when deploying behind a proxy.
 
 ## Using this as a template
 
-Prefer `just new-plugin <name>`, which does all the renaming for you. See the
-[contribution guide](../README.md#contributing-a-new-plugin) for the full
-walkthrough.
+Prefer `just new-plugin <name>`, which does all the renaming for you. See
+[Creating a plugin](../README.md#creating-a-plugin) for the full walkthrough.
 
 ## Canonical references
 
