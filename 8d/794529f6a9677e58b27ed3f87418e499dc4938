@@ -1,0 +1,25 @@
+scripts/new_plugin.py
+  s_af928bbf9c4a42::t_9afb7d33d80e6e 103-112
+  s_af928bbf9c4a42::t_12b37ef10e2a86 118-144,146-150,155-162
+  s_af928bbf9c4a42::t_2bd1124df16996 145,151-154
+scripts/image_smoke.py
+  s_af928bbf9c4a42::t_cc5baedefd4577 83,86-89
+tests/test_scaffolding.py
+  s_af928bbf9c4a42::t_5536911c09ee47 200-221
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "8d794529f6a9677e58b27ed3f87418e499dc4938",
+  "prompts": {},
+  "sessions": {
+    "s_af928bbf9c4a42": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "79a46663-a888-4923-afa7-f567ede38d98",
+        "model": "unknown"
+      },
+      "human_author": "Mark B. Sigler <markbsigler@gmail.com>"
+    }
+  }
+}
