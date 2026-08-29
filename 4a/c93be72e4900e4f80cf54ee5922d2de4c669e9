@@ -1,0 +1,23 @@
+README.md
+  s_af928bbf9c4a42::t_65c2f432f0f3a5 1-55,85-88,95,103-106,110-111,119-123,141,147-149,154-155,165-167,169-170,172-174,176-179,181,190-191,193,197,202-204,222-224,239-240,242-244,254-255,258,264-267,269-270,301-303,317-321,330,343-345,348-350,358,362-364,379-380,382-383,398
+CONTRIBUTING.md
+  s_af928bbf9c4a42::t_f73e6e7c07567d 4-5
+example-plugin/README.md
+  s_af928bbf9c4a42::t_fe05683b84d24c 78-79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "4ac93be72e4900e4f80cf54ee5922d2de4c669e9",
+  "prompts": {},
+  "sessions": {
+    "s_af928bbf9c4a42": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "79a46663-a888-4923-afa7-f567ede38d98",
+        "model": "unknown"
+      },
+      "human_author": "Mark B. Sigler <markbsigler@gmail.com>"
+    }
+  }
+}
