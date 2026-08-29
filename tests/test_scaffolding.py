@@ -197,3 +197,25 @@ def test_scaffolded_manifest_has_todo_placeholders(scaffolded) -> None:
     assert "homepage" not in manifest
     assert "repository" not in manifest
     assert manifest["author"]["name"] == "TODO"
+
+
+@pytest.mark.slow
+def test_no_server_scaffold_has_no_server_artifacts_or_stale_docs(scaffolded) -> None:
+    """`--no-server` must not leave a plugin whose docs describe deleted files.
+
+    Regression: the template README documents servers/, mcp.json, and
+    FASTMCP_* env vars throughout; rewriting it in place for a --no-server
+    scaffold left stale instructions referencing a directory that had just
+    been deleted.
+    """
+    name = "zz-noserver-probe"
+    result = scaffolded(name, "--no-server")
+    assert result.returncode == 0, result.stderr
+
+    plugin = REPO_ROOT / name
+    assert not (plugin / "servers").exists()
+    assert not (plugin / "mcp.json").exists()
+
+    readme = (plugin / "README.md").read_text(encoding="utf-8")
+    for stale in ("FASTMCP_", "example-server", "example_server", "servers/example"):
+        assert stale not in readme, f"README references deleted template content: {stale!r}"

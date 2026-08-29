@@ -100,9 +100,64 @@ def main(argv: list[str] | None = None) -> int:
             except UnicodeDecodeError:
                 continue  # binary asset; leave untouched
 
+    if args.no_server:
+        # The template README documents servers/, mcp.json, and FASTMCP_*
+        # env vars throughout -- none of which exist in a --no-server
+        # scaffold. Rewriting it in place would leave stale, contradictory
+        # instructions (and a reference to a directory just deleted above),
+        # so generate a minimal, accurate one instead.
+        (destination / "README.md").write_text(
+            _no_server_readme(name), encoding="utf-8", newline="\n"
+        )
+
     _reset_manifest(destination / "plugin.json", name)
     _print_next_steps(name, server_name, server_module, with_server=not args.no_server)
     return 0
+
+
+def _no_server_readme(name: str) -> str:
+    """Generate a minimal, accurate README for a skills-only plugin.
+
+    The template README documents servers/, mcp.json, and FASTMCP_* env
+    vars throughout, so it cannot simply be copied and name-rewritten for a
+    ``--no-server`` scaffold without leaving stale, contradictory content.
+    """
+    return f"""# {name}
+
+An [Agent Plugin](https://agent-plugins.org/) with no bundled MCP server --
+skills only.
+
+```text
+{name}/
+├── plugin.json          # required portable manifest
+└── skills/
+    └── ...               # add your Agent Skills here
+```
+
+## Using this plugin
+
+Copy this directory to wherever your Agent Plugins client discovers plugins.
+The client reads `plugin.json` and every `skills/*/SKILL.md` and ignores
+everything else.
+
+## Adding an MCP server later
+
+If this plugin later needs an MCP server, scaffold one with:
+
+```bash
+just new-server {name} <server-name>
+```
+
+That creates a FastMCP server package under `servers/`. You will then need to
+add an `mcp.json` at this plugin's root with a `streamable-http` entry
+pointing at the server once you deploy it -- see
+[`example-plugin/mcp.json`](../example-plugin/mcp.json) for the shape.
+
+## Canonical references
+
+- Plugin package format — https://agent-plugins.org/specification
+- Skill format — https://agentskills.io/specification
+"""
 
 
 def _fail(message: str) -> int:

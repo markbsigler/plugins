@@ -80,9 +80,13 @@ def wait_for_mcp(port: int, timeout: float) -> bool:
         try:
             with urllib.request.urlopen(request, timeout=2):  # noqa: S310
                 return True
-        except urllib.error.HTTPError:
+        except urllib.error.HTTPError as exc:
             # The endpoint exists and is routing -- any HTTP status means the
             # ASGI app is up, even if this bare GET is not a valid MCP call.
+            # `urlopen` raises HTTPError before entering a `with` block, so
+            # the response is closed explicitly here rather than by context
+            # manager exit.
+            exc.close()
             return True
         except (urllib.error.URLError, OSError, TimeoutError):
             time.sleep(1)
