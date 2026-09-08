@@ -27,7 +27,7 @@ dev = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = [
@@ -68,7 +68,7 @@ ignore = [
 convention = "google"
 
 [tool.ty.environment]
-python-version = "3.11"
+python-version = "3.12"
 # `scripts/` is not a package; tests add it to sys.path at runtime, and
 # pytest adds `tests/` via `pythonpath`. Tell ty about both.
 extra-paths = ["scripts", "tests"]
