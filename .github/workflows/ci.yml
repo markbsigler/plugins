@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@18d369b23da25a81e9458561248e1aafff6a70fa # v10.3.1
+        with:
+          enable-cache: true
+          python-version: "3.12"
+
+      - name: Install workspace
+        run: uv sync --locked --all-packages
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Format check
+        run: uv run ruff format --check .
+
+      - name: TOML format check
+        run: uv run taplo fmt --check
+
+      - name: Type check
+        run: uv run ty check .
+
+      - name: Spell check
+        run: uv run typos
+
+      # Keep CI aligned with the pre-commit hook: slow subprocess/network
+      # round trips stay opt-in and run in the full local `just test`.
+      - name: Test
+        run: uv run pytest -m "not slow"
