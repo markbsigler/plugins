@@ -1,0 +1,14 @@
+.github/workflows/ci.yml
+  h_85ea3c1869612c 1-48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d222168eb04a4eaf4c2c1baf104e18228162bbed",
+  "prompts": {},
+  "humans": {
+    "h_85ea3c1869612c": {
+      "author": "Mark B. Sigler <markbsigler@gmail.com>"
+    }
+  }
+}
