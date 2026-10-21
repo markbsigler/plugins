@@ -1,0 +1,12 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f2036d024164544e742f35b774b5f51573f23a5e",
+  "prompts": {},
+  "humans": {
+    "h_85ea3c1869612c": {
+      "author": "Mark B. Sigler <markbsigler@gmail.com>"
+    }
+  }
+}
